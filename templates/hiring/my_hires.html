@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% block title %}My Hires – GetBua{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="fw-bold mb-0">
+      <i class="bi bi-briefcase-fill text-danger"></i> My Hires
+    </h2>
+    <p class="text-muted mb-0">
+      {{ hires.count }} total hire request{{ hires.count|pluralize }}
+    </p>
+  </div>
+  <a href="{% url 'worker_list' %}" class="btn btn-danger">
+    <i class="bi bi-plus-lg"></i> Hire Another Worker
+  </a>
+</div>
+
+{% if hires %}
+  {% for hire in hires %}
+  <div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+      <div class="row align-items-center">
+
+        <!-- Worker Info -->
+        <div class="col-md-4 d-flex align-items-center">
+          {% if hire.worker.photo %}
+            <img src="{{ hire.worker.photo.url }}"
+                 class="rounded-circle me-3"
+                 style="width:56px;height:56px;object-fit:cover;
+                        border:3px solid #dc3545;">
+          {% else %}
+            <div style="
+              width:56px;height:56px;border-radius:50%;
+              background:linear-gradient(135deg,#dc3545,#c0392b);
+              color:white;font-size:1.4rem;font-weight:bold;
+              display:flex;align-items:center;justify-content:center;
+              flex-shrink:0;margin-right:12px;">
+              {{ hire.worker.name|first|upper }}
+            </div>
+          {% endif %}
+          <div>
+            <h6 class="fw-bold mb-0">{{ hire.worker.name }}</h6>
+            <small class="text-muted">
+              <i class="bi bi-geo-alt text-danger"></i>
+              {{ hire.worker.location }} &nbsp;|&nbsp;
+              <i class="bi bi-tools text-danger"></i>
+              {{ hire.worker.skills }}
+            </small><br>
+            <small class="text-success fw-semibold">
+              ৳{{ hire.worker.salary }}/month
+            </small>
+          </div>
+        </div>
+
+        <!-- Status -->
+        <div class="col-md-2 text-center">
+          {% if hire.status == 'Pending' %}
+            <span class="badge bg-warning text-dark fs-6 px-3 py-2">
+              <i class="bi bi-clock"></i> Pending
+            </span>
+          {% elif hire.status == 'Approved' %}
+            <span class="badge bg-success fs-6 px-3 py-2">
+              <i class="bi bi-check-circle"></i> Approved
+            </span>
+          {% elif hire.status == 'Rejected' %}
+            <span class="badge bg-danger fs-6 px-3 py-2">
+              <i class="bi bi-x-circle"></i> Rejected
+            </span>
+          {% elif hire.status == 'Cancelled' %}
+            <span class="badge bg-secondary fs-6 px-3 py-2">
+              <i class="bi bi-slash-circle"></i> Cancelled
+            </span>
+          {% endif %}
+          <br>
+          <small class="text-muted">
+            {{ hire.created_at|date:"d M Y" }}
+          </small>
+        </div>
+
+        <!-- Message -->
+        <div class="col-md-3">
+          {% if hire.message %}
+            <small class="text-muted fst-italic">
+              "{{ hire.message|truncatechars:80 }}"
+            </small>
+          {% else %}
+            <small class="text-muted">No message</small>
+          {% endif %}
+        </div>
+
+        <!-- Actions -->
+        <div class="col-md-3 d-flex flex-column gap-2">
+          {% if hire.status == 'Approved' %}
+
+            <!-- Contract Button -->
+            {% if hire.contract %}
+              <a href="{% url 'view_contract' hire.pk %}"
+                 class="btn btn-outline-success btn-sm">
+                <i class="bi bi-file-earmark-check"></i> View Contract
+              </a>
+            {% endif %}
+
+            <!-- Rate Button (if not already rated) -->
+            {% if not hire.review %}
+              <a href="{% url 'submit_rating' hire.pk %}"
+                 class="btn btn-outline-warning btn-sm">
+                <i class="bi bi-star"></i> Rate Worker
+              </a>
+            {% else %}
+              <span class="btn btn-sm btn-light disabled">
+                <i class="bi bi-star-fill text-warning"></i>
+                Rated {{ hire.review.score }}/5
+              </span>
+            {% endif %}
+
+            <!-- Replacement Button -->
+            {% if not hire.replacement_requests.all %}
+              <a href="{% url 'request_replacement' hire.pk %}"
+                 class="btn btn-outline-danger btn-sm">
+                <i class="bi bi-arrow-repeat"></i> Request Replacement
+              </a>
+            {% else %}
+              {% with rep=hire.replacement_requests.first %}
+                <span class="btn btn-sm btn-light disabled">
+                  <i class="bi bi-arrow-repeat"></i>
+                  Replacement: {{ rep.status }}
+                </span>
+              {% endwith %}
+            {% endif %}
+
+          {% elif hire.status == 'Pending' %}
+            <span class="text-muted small">
+              <i class="bi bi-hourglass-split"></i>
+              Awaiting admin approval...
+            </span>
+
+          {% elif hire.status == 'Rejected' %}
+            <a href="{% url 'worker_list' %}"
+               class="btn btn-outline-danger btn-sm">
+              <i class="bi bi-search"></i> Find Another Worker
+            </a>
+
+          {% elif hire.status == 'Cancelled' %}
+            <span class="text-muted small">
+              <i class="bi bi-info-circle"></i>
+              Cancelled via replacement
+            </span>
+          {% endif %}
+        </div>
+
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+{% else %}
+  <div class="text-center py-5">
+    <div style="font-size:4rem;color:#dee2e6;">
+      <i class="bi bi-briefcase"></i>
+    </div>
+    <h4 class="text-muted mt-3">No hiring requests yet</h4>
+    <p class="text-muted">Browse our verified workers and hire your first one!</p>
+    <a href="{% url 'worker_list' %}" class="btn btn-danger">
+      <i class="bi bi-search"></i> Browse Workers
+    </a>
+  </div>
+{% endif %}
+{% endblock %}

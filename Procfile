@@ -1,0 +1,1 @@
+web: gunicorn getbua.wsgi --log-file -

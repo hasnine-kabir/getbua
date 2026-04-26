@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard – GetBua{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="fw-bold mb-0">
+    <i class="bi bi-speedometer2 text-danger"></i> Admin Dashboard
+  </h2>
+  <a href="/admin/" class="btn btn-outline-danger btn-sm" target="_blank">
+    <i class="bi bi-gear"></i> Django Admin
+  </a>
+</div>
+
+<!-- ── STATS CARDS ──────────────────────────────────────────── -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm p-3 text-center
+                border-start border-danger border-4">
+      <div class="display-5 fw-bold text-danger">
+        {{ total_workers }}
+      </div>
+      <div class="text-muted small">Total Workers</div>
+      <div class="text-success small">
+        {{ avail_workers }} available
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm p-3 text-center
+                border-start border-warning border-4">
+      <div class="display-5 fw-bold text-warning">
+        {{ pending_count }}
+      </div>
+      <div class="text-muted small">Pending Requests</div>
+      <div class="text-muted small">awaiting approval</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm p-3 text-center
+                border-start border-success border-4">
+      <div class="display-5 fw-bold text-success">
+        {{ approved_count }}
+      </div>
+      <div class="text-muted small">Approved Hires</div>
+      <div class="text-muted small">active contracts</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm p-3 text-center
+                border-start border-info border-4">
+      <div class="display-5 fw-bold text-info">
+        {{ replace_count }}
+      </div>
+      <div class="text-muted small">Replacements</div>
+      <div class="text-muted small">pending resolution</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PENDING HIRES ────────────────────────────────────────── -->
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-header bg-warning text-dark fw-bold">
+    <i class="bi bi-clock-fill"></i>
+    Pending Hiring Requests
+    <span class="badge bg-dark ms-2">{{ pending_count }}</span>
+  </div>
+  <div class="card-body p-0">
+    {% if pending_hires %}
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Family</th>
+            <th>Worker</th>
+            <th>Location</th>
+            <th>Salary</th>
+            <th>Message</th>
+            <th>Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for hire in pending_hires %}
+          <tr>
+            <td>
+              <strong>
+                {{ hire.user.get_full_name|default:hire.user.username }}
+              </strong>
+              <br>
+              <small class="text-muted">{{ hire.user.email }}</small>
+            </td>
+            <td>
+              <strong>{{ hire.worker.name }}</strong><br>
+              <small class="text-muted">{{ hire.worker.skills }}</small>
+            </td>
+            <td>{{ hire.worker.location }}</td>
+            <td class="text-success fw-bold">
+              ৳{{ hire.worker.salary }}
+            </td>
+            <td>
+              <small class="text-muted fst-italic">
+                {{ hire.message|truncatechars:40|default:"—" }}
+              </small>
+            </td>
+            <td>
+              <small>{{ hire.created_at|date:"d M Y" }}</small>
+            </td>
+            <td>
+              <a href="{% url 'approve_hire' hire.pk %}"
+                 class="btn btn-success btn-sm me-1"
+                 onclick="return confirm(
+                   'Approve hire for {{ hire.worker.name }}?')">
+                <i class="bi bi-check-lg"></i> Approve
+              </a>
+              <a href="{% url 'reject_hire' hire.pk %}"
+                 class="btn btn-danger btn-sm"
+                 onclick="return confirm(
+                   'Reject hire for {{ hire.worker.name }}?')">
+                <i class="bi bi-x-lg"></i> Reject
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <div class="text-center py-4 text-muted">
+        <i class="bi bi-check-circle text-success"
+           style="font-size:2rem;"></i>
+        <p class="mt-2 mb-0">No pending requests. All clear!</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- ── REPLACEMENT REQUESTS ─────────────────────────────────── -->
+{% if replacements %}
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-header bg-danger text-white fw-bold">
+    <i class="bi bi-arrow-repeat"></i>
+    Pending Replacement Requests
+    <span class="badge bg-white text-danger ms-2">
+      {{ replace_count }}
+    </span>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Family</th>
+            <th>Current Worker</th>
+            <th>Reason</th>
+            <th>Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for rep in replacements %}
+          <tr>
+            <td>
+              <strong>
+                {{ rep.user.get_full_name|default:rep.user.username }}
+              </strong>
+            </td>
+            <td>
+              {{ rep.hiring_request.worker.name }}<br>
+              <small class="text-muted">
+                {{ rep.hiring_request.worker.skills }}
+              </small>
+            </td>
+            <td>
+              <small class="text-muted">
+                {{ rep.reason|truncatechars:60 }}
+              </small>
+            </td>
+            <td>
+              <small>{{ rep.created_at|date:"d M Y" }}</small>
+            </td>
+            <td>
+              <a href="{% url 'resolve_replacement' rep.pk %}"
+                 class="btn btn-warning btn-sm">
+                <i class="bi bi-check2-circle"></i> Resolve
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- ── ALL HIRES HISTORY ─────────────────────────────────────── -->
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-header bg-light fw-bold">
+    <i class="bi bi-list-ul"></i> All Hiring Requests History
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0 small">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>Family</th>
+            <th>Worker</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for hire in all_hires %}
+          <tr>
+            <td class="text-muted">{{ hire.pk }}</td>
+            <td>
+              {{ hire.user.get_full_name|default:hire.user.username }}
+            </td>
+            <td>{{ hire.worker.name }}</td>
+            <td>
+              {% if hire.status == 'Pending' %}
+                <span class="badge bg-warning text-dark">Pending</span>
+              {% elif hire.status == 'Approved' %}
+                <span class="badge bg-success">Approved</span>
+              {% elif hire.status == 'Rejected' %}
+                <span class="badge bg-danger">Rejected</span>
+              {% else %}
+                <span class="badge bg-secondary">Cancelled</span>
+              {% endif %}
+            </td>
+            <td>{{ hire.created_at|date:"d M Y" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

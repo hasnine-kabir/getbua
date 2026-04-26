@@ -1,0 +1,79 @@
+/* GetBua Custom Styles */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+}
+
+.card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 12px;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12) !important;
+}
+
+.worker-card img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #dc3545;
+}
+
+.badge-verified {
+    background-color: #198754;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+}
+
+.star-rating {
+    color: #ffc107;
+    font-size: 1.1rem;
+}
+
+.btn-hire {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 16px;
+    font-weight: 600;
+}
+
+.btn-hire:hover {
+    background-color: #bb2d3b;
+    color: white;
+}
+
+.status-pending  { color: #fd7e14; font-weight: 600; }
+.status-approved { color: #198754; font-weight: 600; }
+.status-rejected { color: #dc3545; font-weight: 600; }
+
+/* Hero */
+.p-5.bg-danger {
+    background: linear-gradient(135deg, #dc3545, #c0392b) !important;
+}
+
+footer {
+    margin-top: 60px;
+}
+
+/* Form styling */
+.form-card {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}

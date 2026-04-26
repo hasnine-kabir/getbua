@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}Hire {{ worker.name }} – GetBua{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm p-4">
+
+      <h3 class="fw-bold mb-4">
+        <i class="bi bi-person-check-fill text-danger"></i>
+        Confirm Hiring Request
+      </h3>
+
+      <!-- Worker Summary -->
+      <div class="d-flex align-items-center mb-4 p-3
+                  bg-light rounded border-start border-danger border-3">
+        {% if worker.photo %}
+          <img src="{{ worker.photo.url }}" alt="{{ worker.name }}"
+               class="rounded-circle me-3"
+               style="width:60px;height:60px;object-fit:cover;">
+        {% else %}
+          <div style="
+            width:60px;height:60px;border-radius:50%;
+            background:#dc3545;color:white;font-size:1.5rem;
+            display:flex;align-items:center;
+            justify-content:center;flex-shrink:0;margin-right:1rem;">
+            {{ worker.name|first|upper }}
+          </div>
+        {% endif %}
+        <div>
+          <h5 class="fw-bold mb-0">{{ worker.name }}</h5>
+          <small class="text-muted">
+            <i class="bi bi-geo-alt text-danger"></i> {{ worker.location }} |
+            <i class="bi bi-tools text-danger"></i> {{ worker.skills }}
+          </small><br>
+          <span class="text-success fw-bold">
+            Asking Salary: ৳{{ worker.salary }}/month
+          </span>
+        </div>
+      </div>
+
+      <form method="POST">
+        {% csrf_token %}
+
+        <!-- Feature 3: Salary Negotiation -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold">
+            <i class="bi bi-cash-coin text-success"></i>
+            Your Proposed Salary (BDT/month)
+            <span class="text-muted fw-normal">(optional)</span>
+          </label>
+          <div class="input-group">
+            <span class="input-group-text">৳</span>
+            <input type="number"
+                   name="proposed_salary"
+                   class="form-control"
+                   placeholder="Leave blank to accept ৳{{ worker.salary }}"
+                   min="1000">
+          </div>
+          <div class="form-text">
+            Worker's asking salary is
+            <strong class="text-success">৳{{ worker.salary }}/month</strong>.
+            You can propose a different amount — admin will negotiate.
+          </div>
+        </div>
+
+        <!-- Message -->
+        <div class="mb-4">
+          <label class="form-label fw-semibold">
+            <i class="bi bi-chat-text text-danger"></i>
+            Message to Admin
+            <span class="text-muted fw-normal">(optional)</span>
+          </label>
+          <textarea name="message" class="form-control" rows="3"
+                    placeholder="Any specific requirements, working hours, notes...">
+          </textarea>
+        </div>
+
+        <div class="alert alert-info py-2 small">
+          <i class="bi bi-info-circle"></i>
+          Your request will be reviewed by admin.
+          You will be notified once approved.
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-danger flex-fill fw-bold py-2">
+            <i class="bi bi-send-fill"></i> Submit Hiring Request
+          </button>
+          <a href="{% url 'worker_detail' worker.pk %}"
+             class="btn btn-outline-secondary flex-fill py-2">
+            <i class="bi bi-x-lg"></i> Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

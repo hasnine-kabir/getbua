@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% block title %}GetBua – Find Trusted Domestic Workers{% endblock %}
+
+{% block content %}
+<!-- HERO SECTION -->
+<div class="p-5 mb-4 bg-danger text-white rounded-3">
+    <div class="container-fluid py-3">
+        <h1 class="display-5 fw-bold">
+            <i class="bi bi-shield-check"></i> Find Trusted Domestic Workers
+        </h1>
+        <p class="col-md-8 fs-4">
+            GetBua connects families with verified, background-checked domestic workers across Bangladesh.
+        </p>
+        <a href="{% url 'worker_list' %}" class="btn btn-light btn-lg fw-bold">
+            <i class="bi bi-search"></i> Browse Workers
+        </a>
+        {% if not user.is_authenticated %}
+        <a href="{% url 'register' %}" class="btn btn-outline-light btn-lg ms-2">
+            <i class="bi bi-person-plus"></i> Register Now
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- FEATURES SECTION -->
+<div class="row text-center mb-5">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3 h-100">
+            <div class="display-4 text-danger mb-2"><i class="bi bi-shield-check"></i></div>
+            <h5 class="fw-bold">NID Verified</h5>
+            <p class="text-muted">All workers are verified with NID before listing.</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3 h-100">
+            <div class="display-4 text-danger mb-2"><i class="bi bi-star-fill"></i></div>
+            <h5 class="fw-bold">Rated Workers</h5>
+            <p class="text-muted">Read real reviews from other families.</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3 h-100">
+            <div class="display-4 text-danger mb-2"><i class="bi bi-file-earmark-check"></i></div>
+            <h5 class="fw-bold">Digital Contracts</h5>
+            <p class="text-muted">Hiring managed through structured contracts.</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3 h-100">
+            <div class="display-4 text-danger mb-2"><i class="bi bi-arrow-repeat"></i></div>
+            <h5 class="fw-bold">Replacements</h5>
+            <p class="text-muted">Request a replacement if needed, hassle-free.</p>
+        </div>
+    </div>
+</div>
+
+<!-- STATS -->
+<div class="row text-center bg-light rounded p-4 mb-4">
+    <div class="col-md-4">
+        <h2 class="text-danger fw-bold">500+</h2>
+        <p class="text-muted">Verified Workers</p>
+    </div>
+    <div class="col-md-4">
+        <h2 class="text-danger fw-bold">1,200+</h2>
+        <p class="text-muted">Happy Families</p>
+    </div>
+    <div class="col-md-4">
+        <h2 class="text-danger fw-bold">4 Cities</h2>
+        <p class="text-muted">Dhaka, Chittagong, Gazipur, Sylhet</p>
+    </div>
+</div>
+
+<!-- FEATURED WORKERS -->
+{% if featured %}
+<div class="mt-2 mb-5">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="fw-bold">
+      <i class="bi bi-star-fill text-warning"></i> Featured Workers
+    </h3>
+    <a href="{% url 'worker_list' %}" class="btn btn-outline-danger btn-sm">
+      View All <i class="bi bi-arrow-right"></i>
+    </a>
+  </div>
+
+  <div class="row row-cols-1 row-cols-md-3 g-3">
+    {% for worker in featured %}
+    <div class="col">
+      <div class="card border-0 shadow-sm h-100 p-3 worker-card">
+
+        <div class="d-flex align-items-center mb-2">
+          {% if worker.photo %}
+            <img src="{{ worker.photo.url }}" alt="{{ worker.name }}"
+                 class="rounded-circle me-3"
+                 style="width:50px;height:50px;object-fit:cover;">
+          {% else %}
+            <div style="width:50px;height:50px;border-radius:50%;
+                        background:#dc3545;color:white;font-weight:bold;
+                        font-size:1.2rem;display:flex;align-items:center;
+                        justify-content:center;flex-shrink:0;margin-right:12px;">
+              {{ worker.name|first|upper }}
+            </div>
+          {% endif %}
+
+          <div>
+            <h6 class="fw-bold mb-0">{{ worker.name }}</h6>
+            <small class="text-muted">
+              <i class="bi bi-geo-alt-fill text-danger"></i> {{ worker.location }}
+            </small>
+          </div>
+        </div>
+
+        <p class="small text-muted mb-2">
+          <i class="bi bi-tools text-danger"></i> {{ worker.skills }} |
+          <strong class="text-success">৳{{ worker.salary }}/mo</strong>
+        </p>
+
+        <div class="star-rating small mb-2">
+          {% for star in worker.star_range %}
+            <i class="bi bi-star-fill"></i>
+          {% endfor %}
+          {% for star in worker.empty_star_range %}
+            <i class="bi bi-star text-muted"></i>
+          {% endfor %}
+        </div>
+
+        <a href="{% url 'worker_detail' worker.pk %}"
+           class="btn btn-outline-danger btn-sm mt-auto">
+          View Profile
+        </a>
+
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

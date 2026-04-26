@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+{% block title %}Browse Workers – GetBua{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="fw-bold mb-0">
+      <i class="bi bi-people-fill text-danger"></i> Browse Workers
+    </h2>
+    <p class="text-muted mb-0">
+      {{ workers.count }} verified worker{{ workers.count|pluralize }} found
+    </p>
+  </div>
+</div>
+
+<!-- ── FILTER CARD ────────────────────────────────────────────── -->
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body">
+    <form method="GET" action="{% url 'worker_list' %}">
+      <div class="row g-2 align-items-end">
+
+        <!-- Search Box -->
+        <div class="col-md-3">
+          <label class="form-label fw-semibold small text-muted">
+            <i class="bi bi-search"></i> Search
+          </label>
+          <input type="text" name="q" class="form-control"
+                 placeholder="Name, skill, city..."
+                 value="{{ q }}">
+        </div>
+
+        <!-- Location -->
+        <div class="col-md-2">
+          <label class="form-label fw-semibold small text-muted">
+            <i class="bi bi-geo-alt"></i> Location
+          </label>
+          <select name="location" class="form-select">
+            <option value="">All Cities</option>
+            {% for val, label in location_choices %}
+              <option value="{{ val }}"
+                {% if location == val %}selected{% endif %}>
+                {{ label }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Skill -->
+        <div class="col-md-2">
+          <label class="form-label fw-semibold small text-muted">
+            <i class="bi bi-tools"></i> Skill
+          </label>
+          <select name="skill" class="form-select">
+            <option value="">All Skills</option>
+            {% for val, label in skill_choices %}
+              <option value="{{ val }}"
+                {% if skill == val %}selected{% endif %}>
+                {{ label }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Min Salary -->
+        <div class="col-md-2">
+          <label class="form-label fw-semibold small text-muted">
+            <i class="bi bi-currency-exchange"></i> Min Salary (৳)
+          </label>
+          <input type="number" name="min_salary" class="form-control"
+                 placeholder="e.g. 3000" value="{{ min_salary }}">
+        </div>
+
+        <!-- Max Salary -->
+        <div class="col-md-1">
+          <label class="form-label fw-semibold small text-muted">Max (৳)</label>
+          <input type="number" name="max_salary" class="form-control"
+                 placeholder="e.g. 8000" value="{{ max_salary }}">
+        </div>
+
+        <!-- Availability -->
+        <div class="col-md-1">
+          <label class="form-label fw-semibold small text-muted">Status</label>
+          <select name="availability" class="form-select">
+            <option value="">All</option>
+            {% for val, label in avail_choices %}
+              <option value="{{ val }}"
+                {% if availability == val %}selected{% endif %}>
+                {{ label }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Buttons -->
+        <div class="col-md-1 d-flex gap-1">
+          <button type="submit" class="btn btn-danger w-100">
+            <i class="bi bi-funnel-fill"></i>
+          </button>
+          <a href="{% url 'worker_list' %}" class="btn btn-outline-secondary w-100">
+            <i class="bi bi-x-lg"></i>
+          </a>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── WORKER CARDS ───────────────────────────────────────────── -->
+{% if workers %}
+  <div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for worker in workers %}
+    <div class="col">
+      <div class="card border-0 shadow-sm h-100 worker-card">
+        <div class="card-body">
+
+          <!-- Top: Photo + Name + Badge -->
+          <div class="d-flex align-items-center mb-3">
+            {% if worker.photo %}
+              <img src="{{ worker.photo.url }}" alt="{{ worker.name }}">
+            {% else %}
+              <!-- Fallback Avatar -->
+              <div style="
+                width:70px; height:70px; border-radius:50%;
+                background: linear-gradient(135deg,#dc3545,#c0392b);
+                color:white; font-size:1.6rem; font-weight:bold;
+                display:flex; align-items:center;
+                justify-content:center; flex-shrink:0;">
+                {{ worker.name|first|upper }}
+              </div>
+            {% endif %}
+
+            <div class="ms-3">
+              <h5 class="fw-bold mb-0">{{ worker.name }}</h5>
+              <small class="text-muted">
+                <i class="bi bi-geo-alt-fill text-danger"></i>
+                {{ worker.location }}
+              </small><br>
+              {% if worker.is_verified %}
+                <span class="badge bg-success mt-1">
+                  <i class="bi bi-patch-check"></i> Verified
+                </span>
+              {% endif %}
+              <!-- Availability Badge -->
+              {% if worker.availability == 'Available' %}
+                <span class="badge bg-primary ms-1 mt-1">Available</span>
+              {% elif worker.availability == 'Hired' %}
+                <span class="badge bg-warning text-dark ms-1 mt-1">Hired</span>
+              {% else %}
+                <span class="badge bg-secondary ms-1 mt-1">Unavailable</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Skills & Info -->
+          <div class="mb-2">
+            <span class="badge bg-light text-dark border me-1">
+              <i class="bi bi-tools text-danger"></i> {{ worker.skills }}
+            </span>
+            <span class="badge bg-light text-dark border">
+              <i class="bi bi-briefcase text-danger"></i>
+              {{ worker.experience }} yr{{ worker.experience|pluralize }}
+            </span>
+          </div>
+
+          <!-- Salary -->
+          <p class="mb-2">
+            <i class="bi bi-cash-coin text-success"></i>
+            <strong class="text-success">৳{{ worker.salary }}</strong>
+            <span class="text-muted small">/month</span>
+          </p>
+
+          <!-- Rating Stars -->
+          <div class="star-rating mb-3">
+            {% for _ in worker.star_range %}
+              <i class="bi bi-star-fill"></i>
+            {% endfor %}
+            {% for _ in worker.empty_star_range %}
+              <i class="bi bi-star text-muted"></i>
+            {% endfor %}
+            <small class="text-muted ms-1">
+              {{ worker.avg_rating }}
+              ({{ worker.total_reviews }} review{{ worker.total_reviews|pluralize }})
+            </small>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="d-flex gap-2">
+            <a href="{% url 'worker_detail' worker.pk %}"
+               class="btn btn-outline-danger flex-fill">
+              <i class="bi bi-eye"></i> View Profile
+            </a>
+            {% if user.is_authenticated and worker.availability == 'Available' %}
+              <a href="{% url 'hire_worker' worker.pk %}"
+                 class="btn btn-danger flex-fill">
+                <i class="bi bi-person-check"></i> Hire
+              </a>
+            {% elif not user.is_authenticated %}
+              <a href="{% url 'login' %}?next={% url 'hire_worker' worker.pk %}"
+                 class="btn btn-danger flex-fill">
+                <i class="bi bi-lock"></i> Login to Hire
+              </a>
+            {% endif %}
+          </div>
+
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+{% else %}
+  <!-- Empty State -->
+  <div class="text-center py-5">
+    <div style="font-size:4rem; color:#dee2e6;">
+      <i class="bi bi-search"></i>
+    </div>
+    <h4 class="text-muted mt-3">No workers found</h4>
+    <p class="text-muted">Try adjusting your search filters.</p>
+    <a href="{% url 'worker_list' %}" class="btn btn-outline-danger">
+      <i class="bi bi-arrow-counterclockwise"></i> Clear Filters
+    </a>
+  </div>
+{% endif %}
+
+{% endblock %}

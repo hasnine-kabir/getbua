@@ -1,0 +1,330 @@
+{% extends 'base.html' %}
+{% block title %}{{ worker.name }} – GetBua{% endblock %}
+
+{% block content %}
+
+<!-- Print Button (Feature 6) — hidden when printing -->
+<div class="d-flex justify-content-between align-items-center mb-3 d-print-none">
+  <a href="{% url 'worker_list' %}" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left"></i> Back to Workers
+  </a>
+  <button onclick="window.print()"
+          class="btn btn-outline-dark btn-sm">
+    <i class="bi bi-printer"></i> Print Worker Profile
+  </button>
+</div>
+
+<!-- Print Header (only visible when printing) -->
+<div class="d-none d-print-block text-center mb-3">
+  <h3 class="fw-bold text-danger">🏠 GetBua – Worker Profile</h3>
+  <p class="text-muted small">Printed on: {% now "d M Y" %}</p>
+  <hr>
+</div>
+
+<div class="row g-4">
+
+  <!-- ── LEFT: Worker Profile Card ──────────────────────────── -->
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm p-4 text-center">
+
+      <!-- Photo -->
+      {% if worker.photo %}
+        <img src="{{ worker.photo.url }}" alt="{{ worker.name }}"
+             class="rounded-circle mx-auto d-block mb-3"
+             style="width:120px;height:120px;object-fit:cover;
+                    border:4px solid #dc3545;">
+      {% else %}
+        <div style="
+          width:120px;height:120px;border-radius:50%;
+          background:linear-gradient(135deg,#dc3545,#c0392b);
+          color:white;font-size:3rem;font-weight:bold;
+          display:flex;align-items:center;justify-content:center;
+          margin:0 auto 1rem;border:4px solid #dc3545;">
+          {{ worker.name|first|upper }}
+        </div>
+      {% endif %}
+
+      <!-- Name & Badges -->
+      <h3 class="fw-bold mb-1">{{ worker.name }}</h3>
+      <div class="mb-2">
+        {% if worker.is_verified %}
+          <span class="badge bg-success">
+            <i class="bi bi-patch-check"></i> NID Verified
+          </span>
+        {% endif %}
+        {% if worker.availability == 'Available' %}
+          <span class="badge bg-primary ms-1">Available</span>
+        {% elif worker.availability == 'Hired' %}
+          <span class="badge bg-warning text-dark ms-1">
+            Currently Hired
+          </span>
+        {% else %}
+          <span class="badge bg-secondary ms-1">Unavailable</span>
+        {% endif %}
+      </div>
+
+      <!-- Star Rating -->
+      <div class="star-rating fs-5 mb-1">
+        {% for _ in worker.star_range %}
+          <i class="bi bi-star-fill"></i>
+        {% endfor %}
+        {% for _ in worker.empty_star_range %}
+          <i class="bi bi-star text-muted"></i>
+        {% endfor %}
+      </div>
+      <p class="text-muted small mb-3">
+        {{ worker.avg_rating }}/5 from
+        {{ worker.total_reviews }}
+        review{{ worker.total_reviews|pluralize }}
+      </p>
+
+      <!-- Feature 4: Hiring History Badge -->
+      <div class="mb-3">
+        <span class="badge bg-light text-dark border px-3 py-2 fs-6">
+          <i class="bi bi-briefcase-fill text-success"></i>
+          Hired <strong>{{ worker.total_hires }}</strong>
+          time{{ worker.total_hires|pluralize }} before
+        </span>
+      </div>
+
+      <!-- Basic Info Table -->
+      <table class="table table-borderless text-start small mb-0">
+        <tbody>
+          <tr>
+            <td class="text-muted fw-semibold" width="40%">
+              <i class="bi bi-geo-alt text-danger"></i> Location
+            </td>
+            <td>{{ worker.location }}</td>
+          </tr>
+          <tr>
+            <td class="text-muted fw-semibold">
+              <i class="bi bi-person text-danger"></i> Age
+            </td>
+            <td>{{ worker.age }} years</td>
+          </tr>
+          <tr>
+            <td class="text-muted fw-semibold">
+              <i class="bi bi-tools text-danger"></i> Skill
+            </td>
+            <td>{{ worker.skills }}</td>
+          </tr>
+          <tr>
+            <td class="text-muted fw-semibold">
+              <i class="bi bi-briefcase text-danger"></i> Experience
+            </td>
+            <td>
+              {{ worker.experience }}
+              year{{ worker.experience|pluralize }}
+            </td>
+          </tr>
+          <tr>
+            <td class="text-muted fw-semibold">
+              <i class="bi bi-cash-coin text-danger"></i> Salary
+            </td>
+            <td class="text-success fw-bold">
+              ৳{{ worker.salary }}/mo
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Hire Button (hidden when printing) -->
+      <div class="d-print-none mt-3">
+        {% if user.is_authenticated %}
+          {% if existing_request %}
+            <div class="alert alert-info py-2 small mb-2">
+              <i class="bi bi-info-circle"></i>
+              Request status:
+              <strong class="status-{{ existing_request.status|lower }}">
+                {{ existing_request.status }}
+              </strong>
+            </div>
+          {% elif worker.availability == 'Available' %}
+            <a href="{% url 'hire_worker' worker.pk %}"
+               class="btn btn-danger w-100 fw-bold py-2">
+              <i class="bi bi-person-check-fill"></i>
+              Hire {{ worker.name }}
+            </a>
+          {% else %}
+            <button class="btn btn-secondary w-100" disabled>
+              Not Available
+            </button>
+          {% endif %}
+        {% else %}
+          <a href="{% url 'login' %}?next={% url 'hire_worker' worker.pk %}"
+             class="btn btn-danger w-100 fw-bold py-2">
+            <i class="bi bi-lock-fill"></i> Login to Hire
+          </a>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── RIGHT: Details + Reviews ───────────────────────────── -->
+  <div class="col-md-8">
+
+    <!-- Feature 7: Working Schedule Card -->
+    <div class="card border-0 shadow-sm p-4 mb-4">
+      <h5 class="fw-bold mb-3">
+        <i class="bi bi-calendar-week text-danger"></i>
+        Working Schedule & Details
+      </h5>
+      <div class="row g-3">
+
+        <div class="col-sm-4">
+          <div class="p-3 bg-light rounded text-center h-100">
+            <div class="text-danger mb-1">
+              <i class="bi bi-person-workspace fs-4"></i>
+            </div>
+            <div class="small text-muted fw-semibold">Work Type</div>
+            <div class="fw-bold">{{ worker.work_type }}</div>
+          </div>
+        </div>
+
+        <div class="col-sm-4">
+          <div class="p-3 bg-light rounded text-center h-100">
+            <div class="text-danger mb-1">
+              <i class="bi bi-clock fs-4"></i>
+            </div>
+            <div class="small text-muted fw-semibold">Working Hours</div>
+            <div class="fw-bold">{{ worker.work_hours }}</div>
+          </div>
+        </div>
+
+        <div class="col-sm-4">
+          <div class="p-3 bg-light rounded text-center h-100">
+            <div class="text-danger mb-1">
+              <i class="bi bi-calendar-x fs-4"></i>
+            </div>
+            <div class="small text-muted fw-semibold">Day Off</div>
+            <div class="fw-bold">{{ worker.day_off }}</div>
+          </div>
+        </div>
+
+      </div>
+
+      {% if worker.extra_notes %}
+      <div class="mt-3 p-3 bg-light rounded
+                  border-start border-danger border-3">
+        <div class="small text-muted fw-semibold mb-1">
+          <i class="bi bi-sticky text-danger"></i> Additional Notes
+        </div>
+        <p class="mb-0 small">{{ worker.extra_notes }}</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Feature 2: Emergency Contact Card -->
+    {% if worker.guardian_name or worker.guardian_phone %}
+    <div class="card border-0 shadow-sm p-4 mb-4">
+      <h5 class="fw-bold mb-3">
+        <i class="bi bi-telephone-fill text-danger"></i>
+        Emergency Contact
+      </h5>
+      <div class="row g-2">
+        {% if worker.guardian_name %}
+        <div class="col-sm-4">
+          <div class="small text-muted fw-semibold">Name</div>
+          <div class="fw-bold">{{ worker.guardian_name }}</div>
+        </div>
+        {% endif %}
+        {% if worker.guardian_relation %}
+        <div class="col-sm-4">
+          <div class="small text-muted fw-semibold">Relation</div>
+          <div class="fw-bold">{{ worker.guardian_relation }}</div>
+        </div>
+        {% endif %}
+        {% if worker.guardian_phone %}
+        <div class="col-sm-4">
+          <div class="small text-muted fw-semibold">Phone</div>
+          <div class="fw-bold">
+            <a href="tel:{{ worker.guardian_phone }}"
+               class="text-danger text-decoration-none">
+              <i class="bi bi-telephone"></i>
+              {{ worker.guardian_phone }}
+            </a>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Reviews Card -->
+    <div class="card border-0 shadow-sm p-4">
+      <h5 class="fw-bold mb-4">
+        <i class="bi bi-star-fill text-warning"></i>
+        Reviews ({{ reviews.count }})
+      </h5>
+
+      {% if reviews %}
+        {% for review in reviews %}
+        <div class="border-bottom pb-3 mb-3">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <div class="d-flex align-items-center mb-1">
+                <div style="
+                  width:36px;height:36px;border-radius:50%;
+                  background:#dc3545;color:white;font-weight:bold;
+                  display:flex;align-items:center;
+                  justify-content:center;font-size:0.85rem;
+                  flex-shrink:0;margin-right:10px;">
+                  {{ review.user.first_name|first|upper }}
+                  {{ review.user.last_name|first|upper }}
+                </div>
+                <div>
+                  <strong>
+                    {{ review.user.get_full_name|default:review.user.username }}
+                  </strong><br>
+                  <small class="text-muted">
+                    {{ review.created_at|date:"d M Y" }}
+                  </small>
+                </div>
+              </div>
+              <div class="star-rating">
+                {% for _ in review.star_range %}
+                  <i class="bi bi-star-fill"></i>
+                {% endfor %}
+                {% for _ in review.empty_star_range %}
+                  <i class="bi bi-star text-muted"></i>
+                {% endfor %}
+              </div>
+            </div>
+            <span class="badge bg-warning text-dark fs-6">
+              {{ review.score }}/5
+            </span>
+          </div>
+          {% if review.comment %}
+            <p class="mt-2 mb-0 text-muted fst-italic">
+              "{{ review.comment }}"
+            </p>
+          {% endif %}
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="text-center py-4 text-muted">
+          <i class="bi bi-chat-dots" style="font-size:2.5rem;"></i>
+          <p class="mt-2">
+            No reviews yet. Be the first to hire and review!
+          </p>
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+</div>
+
+<!-- Feature 6: Print Styles -->
+<style>
+  @media print {
+    nav, footer, .d-print-none { display: none !important; }
+    .card { box-shadow: none !important; border: 1px solid #ddd !important; }
+    body { background: white !important; }
+    .col-md-4, .col-md-8 { width: 100% !important; }
+    .row { display: block !important; }
+  }
+</style>
+
+{% endblock %}
