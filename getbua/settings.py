@@ -13,10 +13,12 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS',
                 default='127.0.0.1,localhost',
                 cast=Csv())
+
 CSRF_TRUSTED_ORIGINS = [
     'https://web-production-8c0589.up.railway.app',
     'http://web-production-8c0589.up.railway.app',
 ]
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -24,12 +26,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cloudinary_storage',
+    'cloudinary',
     'core',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # ← whitenoise here
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -59,7 +63,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'getbua.wsgi.application'
 
 # ─── DATABASE ─────────────────────────────────────────────────────────────────
-# Uses DATABASE_URL on Railway, falls back to SQLite locally
 DATABASE_URL = config('DATABASE_URL', default=None)
 
 if DATABASE_URL:
@@ -87,11 +90,10 @@ USE_I18N      = True
 USE_TZ        = True
 
 # ─── STATIC FILES ─────────────────────────────────────────────────────────────
-STATIC_URL   = '/static/'
+STATIC_URL       = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT  = BASE_DIR / 'staticfiles'
+STATIC_ROOT      = BASE_DIR / 'staticfiles'
 
-# Whitenoise — serves static files in production
 STATICFILES_STORAGE = (
     'whitenoise.storage.CompressedManifestStaticFilesStorage'
 )
@@ -100,8 +102,22 @@ STATICFILES_STORAGE = (
 MEDIA_URL  = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# ─── CLOUDINARY ───────────────────────────────────────────────────────────────
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default=''),
+    'API_KEY':    config('CLOUDINARY_API_KEY',    default=''),
+    'API_SECRET': config('CLOUDINARY_API_SECRET', default=''),
+}
 
-LOGIN_URL          = '/login/'
-LOGIN_REDIRECT_URL = '/'
+# Local → saves to media/ folder
+# Railway → saves to Cloudinary cloud
+if not DEBUG:
+    DEFAULT_FILE_STORAGE = (
+        'cloudinary_storage.storage.MediaCloudinaryStorage'
+    )
+
+DEFAULT_AUTO_FIELD  = 'django.db.models.BigAutoField'
+
+LOGIN_URL           = '/login/'
+LOGIN_REDIRECT_URL  = '/'
 LOGOUT_REDIRECT_URL = '/'
