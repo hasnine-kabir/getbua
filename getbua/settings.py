@@ -109,15 +109,21 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': config('CLOUDINARY_API_SECRET', default=''),
 }
 
-# Local → saves to media/ folder
-# Railway → saves to Cloudinary cloud
-if not DEBUG:
-    DEFAULT_FILE_STORAGE = (
-        'cloudinary_storage.storage.MediaCloudinaryStorage'
-    )
+DEFAULT_FILE_STORAGE = (
+    'cloudinary_storage.storage.MediaCloudinaryStorage'
+)
 
+# ─── EMAIL ────────────────────────────────────────────────────────────────────
+EMAIL_BACKEND       = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST          = 'smtp.gmail.com'
+EMAIL_PORT          = 587
+EMAIL_USE_TLS       = True
+EMAIL_HOST_USER     = config('EMAIL_HOST_USER',     default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL  = f'GetBua <{config("EMAIL_HOST_USER", default="")}>'
+
+# ─── AUTH ─────────────────────────────────────────────────────────────────────
 DEFAULT_AUTO_FIELD  = 'django.db.models.BigAutoField'
-
 LOGIN_URL           = '/login/'
 LOGIN_REDIRECT_URL  = '/'
 LOGOUT_REDIRECT_URL = '/'
