@@ -5,6 +5,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.shortcuts import render
+from django.contrib import messages
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 from .forms import (RegisterForm, LoginForm,
                     ProfileEditForm, PasswordResetForm)
 from .models import (Worker, HiringRequest, Contract,
