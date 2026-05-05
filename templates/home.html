@@ -9,18 +9,18 @@
     <div class="col-lg-7">
       <div class="mb-3">
         <span style="background:rgba(255,255,255,0.15);
-                     color:rgb(38, 76, 146); padding:6px 16px;
+                     color:white; padding:6px 16px;
                      border-radius:20px; font-size:0.85rem;
                      font-weight:600; letter-spacing:0.5px;">
           🇧🇩 Bangladesh's #1 Verified Platform
         </span>
       </div>
       <h1 class="fw-bold mb-3"
-          style="font-size:2.8rem; line-height:1.15; color:rgba(128, 0, 0, 0.85);">
+          style="font-size:2.8rem; line-height:1.15; color:white;">
         Find Verified &<br>Trusted Domestic<br>Workers
       </h1>
       <p class="mb-4"
-         style="color:rgba(128, 0, 0, 0.85);
+         style="color:rgba(255,255,255,0.85);
                 font-size:1.1rem; max-width:480px;">
         GetBua connects families with background-checked,
         NID-verified domestic workers across Dhaka,
@@ -215,7 +215,7 @@
       <div class="card worker-card h-100 p-4">
         <div class="d-flex align-items-center mb-3">
           {% if worker.photo %}
-            <img src="worker.jpg"
+            <img src="{{ worker.photo.url }}"
                  class="worker-avatar me-3">
           {% else %}
             <div class="worker-avatar-placeholder me-3">
