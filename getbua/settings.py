@@ -26,8 +26,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # 'cloudinary_storage',  # removed — not using Cloudinary
-    # 'cloudinary',          # removed — not using Cloudinary
+    'cloudinary_storage',
+    'cloudinary',
     'core',
 ]
 
@@ -99,11 +99,19 @@ STATICFILES_STORAGE = (
 )
 
 # ─── MEDIA FILES ──────────────────────────────────────────────────────────────
-# NOTE: Railway has an ephemeral filesystem — uploaded files (worker photos etc.)
-# will be lost on redeploy. To persist media files, commit them to your git repo
-# inside the /media folder, OR use a storage service later (AWS S3, Supabase etc.)
 MEDIA_URL  = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# ─── CLOUDINARY ───────────────────────────────────────────────────────────────
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default=''),
+    'API_KEY':    config('CLOUDINARY_API_KEY',    default=''),
+    'API_SECRET': config('CLOUDINARY_API_SECRET', default=''),
+}
+
+DEFAULT_FILE_STORAGE = (
+    'cloudinary_storage.storage.MediaCloudinaryStorage'
+)
 
 # ─── EMAIL ────────────────────────────────────────────────────────────────────
 EMAIL_BACKEND       = 'django.core.mail.backends.smtp.EmailBackend'
