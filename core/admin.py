@@ -14,12 +14,13 @@ class UserProfileAdmin(admin.ModelAdmin):
 class WorkerAdmin(admin.ModelAdmin):
     list_display  = [
         'photo_preview', 'name', 'age', 'location',
-        'skills', 'salary', 'work_type', 'availability',
+        'skills', 'salary', 'work_type', 'availability','accepts_short_term', 
+        'daily_rate',
         'is_verified', 'avg_rating', 'total_hires'
     ]
     list_filter   = [
         'location', 'skills', 'availability',
-        'is_verified', 'work_type', 'day_off'
+        'is_verified', 'work_type', 'day_off', 'accepts_short_term'
     ]
     search_fields = ['name', 'nid_number', 'phone',
                      'guardian_name', 'guardian_phone']
@@ -31,6 +32,9 @@ class WorkerAdmin(admin.ModelAdmin):
             'fields': ('name', 'age', 'phone', 'address',
                        'photo', 'nid_number')
         }),
+        ('Short-Term / Daily Hire', {
+    'fields': ('accepts_short_term', 'daily_rate', 'min_days')
+        }), 
         ('Work Details', {
             'fields': ('skills', 'experience', 'salary', 'location')
         }),

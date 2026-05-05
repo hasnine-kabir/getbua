@@ -1,0 +1,247 @@
+{% extends 'base.html' %}
+{% block title %}Short-Term Workers – GetBua{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="fw-bold mb-1">
+      <i class="bi bi-lightning-fill me-2"
+         style="color:#8E44AD;"></i>Short-Term Workers
+    </h2>
+    <p class="text-muted mb-0">
+      {{ total_count }} worker{{ total_count|pluralize }}
+      available for daily hire
+    </p>
+  </div>
+  <a href="{% url 'worker_list' %}"
+     class="btn btn-outline-primary btn-sm">
+    <i class="bi bi-people me-1"></i>Full-Time Workers
+  </a>
+</div>
+
+<!-- Info Banner -->
+<div class="p-3 rounded-3 mb-4"
+     style="background:linear-gradient(135deg,#8E44AD15,#6C348315);
+            border:1px solid #8E44AD30;">
+  <div class="d-flex align-items-center">
+    <i class="bi bi-info-circle-fill me-3 fs-4"
+       style="color:#8E44AD;"></i>
+    <div>
+      <strong>How Short-Term Hiring Works:</strong>
+      <span class="text-muted ms-2">
+        Browse workers, check their daily rate,
+        submit a request with your required number of days.
+        Admin will confirm and send the worker to you.
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- Filter -->
+<div class="filter-card mb-4">
+  <form method="GET">
+    <div class="row g-2 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label">Search</label>
+        <input type="text" name="q" class="form-control"
+               placeholder="Name, skill, city..."
+               value="{{ q }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Location</label>
+        <select name="location" class="form-select">
+          <option value="">All Cities</option>
+          {% for val, label in location_choices %}
+            <option value="{{ val }}"
+              {% if location == val %}selected{% endif %}>
+              {{ label }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Skill</label>
+        <select name="skill" class="form-select">
+          <option value="">All Skills</option>
+          {% for val, label in skill_choices %}
+            <option value="{{ val }}"
+              {% if skill == val %}selected{% endif %}>
+              {{ label }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2 d-flex gap-1">
+        <button type="submit" class="btn btn-primary w-100">
+          <i class="bi bi-search"></i>
+        </button>
+        <a href="{% url 'short_term_list' %}"
+           class="btn w-100"
+           style="background:var(--bg);
+                  border:1px solid var(--border);">
+          <i class="bi bi-x"></i>
+        </a>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- Workers Grid -->
+{% if workers %}
+<div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+  {% for worker in workers %}
+  <div class="col">
+    <div class="card worker-card h-100 p-4">
+
+      <!-- Top -->
+      <div class="d-flex align-items-center mb-3">
+        {% if worker.photo %}
+          <img src="{{ worker.photo.url }}"
+               class="worker-avatar me-3">
+        {% else %}
+          <div class="worker-avatar-placeholder me-3">
+            {{ worker.name|first|upper }}
+          </div>
+        {% endif %}
+        <div>
+          <h6 class="fw-bold mb-1">{{ worker.name }}</h6>
+          <small class="text-muted">
+            <i class="bi bi-geo-alt-fill"
+               style="color:var(--primary);"></i>
+            {{ worker.location }}
+          </small>
+        </div>
+      </div>
+
+      <!-- Badges -->
+      <div class="mb-2 d-flex flex-wrap gap-1">
+        {% if worker.is_verified %}
+        <span class="badge-verified">
+          <i class="bi bi-patch-check me-1"></i>Verified
+        </span>
+        {% endif %}
+        <span class="shortterm-tag">
+          <i class="bi bi-lightning me-1"></i>Short-Term
+        </span>
+      </div>
+
+      <!-- Info -->
+      <p class="small mb-2 text-muted">
+        <i class="bi bi-tools"
+           style="color:var(--primary);"></i>
+        {{ worker.skills }}
+        · {{ worker.experience }}yr exp
+      </p>
+
+      <!-- Stars -->
+      <div class="star-rating small mb-3">
+        {% for _ in worker.star_range %}
+          <i class="bi bi-star-fill"></i>
+        {% endfor %}
+        {% for _ in worker.empty_star_range %}
+          <i class="bi bi-star empty"></i>
+        {% endfor %}
+        <span class="text-muted ms-1">
+          {{ worker.avg_rating }} ({{ worker.total_reviews }})
+        </span>
+      </div>
+
+      <!-- Pricing -->
+      <div class="p-3 rounded-3 mb-3"
+           style="background:var(--bg);">
+        <div class="row text-center g-2">
+          <div class="col-6">
+            <div class="fw-bold"
+                 style="color:#8E44AD;font-size:1.1rem;">
+              ৳{{ worker.daily_rate }}
+            </div>
+            <div class="text-muted small">per day</div>
+          </div>
+          <div class="col-6">
+            <div class="fw-bold text-muted">
+              Min {{ worker.min_days }} day{{ worker.min_days|pluralize }}
+            </div>
+            <div class="text-muted small">minimum</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action -->
+      <div class="d-flex gap-2 mt-auto">
+        <a href="{% url 'worker_detail' worker.pk %}"
+           class="btn btn-outline-primary flex-fill btn-sm">
+          View Profile
+        </a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'hire_worker' worker.pk %}"
+           class="btn flex-fill btn-sm"
+           style="background:#8E44AD;color:white;border:none;">
+          <i class="bi bi-lightning me-1"></i>Hire
+        </a>
+        {% else %}
+        <a href="{% url 'login' %}?next={% url 'hire_worker' worker.pk %}"
+           class="btn flex-fill btn-sm"
+           style="background:#8E44AD;color:white;border:none;">
+          Login to Hire
+        </a>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<div class="d-flex justify-content-center mt-4">
+  <nav>
+    <ul class="pagination">
+      {% if page_obj.has_previous %}
+      <li class="page-item">
+        <a class="page-link"
+           href="?page={{ page_obj.previous_page_number }}&q={{ q }}&location={{ location }}&skill={{ skill }}">
+          <i class="bi bi-chevron-left"></i>
+        </a>
+      </li>
+      {% endif %}
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+          <li class="page-item active">
+            <span class="page-link">{{ num }}</span>
+          </li>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+          <li class="page-item">
+            <a class="page-link"
+               href="?page={{ num }}&q={{ q }}&location={{ location }}&skill={{ skill }}">
+              {{ num }}
+            </a>
+          </li>
+        {% endif %}
+      {% endfor %}
+      {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link"
+           href="?page={{ page_obj.next_page_number }}&q={{ q }}&location={{ location }}&skill={{ skill }}">
+          <i class="bi bi-chevron-right"></i>
+        </a>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+</div>
+{% endif %}
+
+{% else %}
+<div class="text-center py-5">
+  <div style="font-size:4rem;color:var(--border);">⚡</div>
+  <h4 class="text-muted mt-3">No short-term workers found</h4>
+  <p class="text-muted">Try adjusting your filters.</p>
+  <a href="{% url 'short_term_list' %}"
+     class="btn btn-outline-primary">Clear Filters</a>
+</div>
+{% endif %}
+
+{% endblock %}

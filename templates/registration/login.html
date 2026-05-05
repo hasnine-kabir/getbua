@@ -2,28 +2,29 @@
 {% block title %}Login – GetBua{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center mt-5">
+<div class="row justify-content-center mt-4">
   <div class="col-md-5">
     <div class="form-card">
-
-      <!-- Header -->
       <div class="text-center mb-4">
-        <div style="font-size:3rem; color:#dc3545;">
-          <i class="bi bi-shield-lock-fill"></i>
+        <div style="width:64px;height:64px;border-radius:16px;
+                    background:linear-gradient(135deg,#4A90E2,#2C5AA0);
+                    display:flex;align-items:center;
+                    justify-content:center;margin:0 auto 16px;
+                    font-size:1.8rem;box-shadow:0 4px 16px rgba(74,144,226,0.3);">
+          🔐
         </div>
-        <h2 class="fw-bold">Welcome Back</h2>
-        <p class="text-muted">Login to your GetBua account</p>
+        <h2 class="fw-bold mb-1" style="color:var(--text);">
+          Welcome Back
+        </h2>
+        <p class="text-muted small">
+          Sign in to your GetBua account
+        </p>
       </div>
 
-      <!-- Form -->
       <form method="POST" novalidate>
         {% csrf_token %}
-
-        <!-- Username -->
         <div class="mb-3">
-          <label class="form-label fw-semibold">
-            <i class="bi bi-person"></i> Username
-          </label>
+          <label class="form-label">Username</label>
           {{ form.username }}
           {% if form.username.errors %}
             <div class="text-danger small mt-1">
@@ -31,12 +32,8 @@
             </div>
           {% endif %}
         </div>
-
-        <!-- Password -->
         <div class="mb-4">
-          <label class="form-label fw-semibold">
-            <i class="bi bi-lock"></i> Password
-          </label>
+          <label class="form-label">Password</label>
           {{ form.password }}
           {% if form.password.errors %}
             <div class="text-danger small mt-1">
@@ -45,32 +42,29 @@
           {% endif %}
         </div>
 
-        <!-- Submit -->
         <button type="submit"
-                class="btn btn-danger w-100 fw-bold py-2">
-          <i class="bi bi-box-arrow-in-right"></i> Login
+                class="btn btn-primary w-100 py-2 fw-bold">
+          Sign In <i class="bi bi-arrow-right ms-1"></i>
         </button>
       </form>
 
-      <!-- Forgot Password -->
       <div class="text-center mt-3">
-        <a href="{% url 'password_reset' %}"
-           class="text-muted small text-decoration-none">
-          <i class="bi bi-lock"></i> Forgot your password?
+        <a href="{% url 'custom_password_reset' %}"
+           class="text-muted small">
+          <i class="bi bi-lock me-1"></i>Forgot your password?
         </a>
       </div>
 
-      <hr class="my-3">
+      <div class="divider"></div>
 
-      <!-- Register Link -->
-      <p class="text-center mb-0">
+      <p class="text-center mb-0 small">
         Don't have an account?
         <a href="{% url 'register' %}"
-           class="text-danger fw-semibold">
-          Register here
+           class="fw-semibold"
+           style="color:var(--primary);">
+          Create one free
         </a>
       </p>
-
     </div>
   </div>
 </div>

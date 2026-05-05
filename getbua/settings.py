@@ -120,7 +120,7 @@ EMAIL_PORT          = 587
 EMAIL_USE_TLS       = True
 EMAIL_HOST_USER     = config('EMAIL_HOST_USER',     default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-DEFAULT_FROM_EMAIL  = f'GetBua <{config("EMAIL_HOST_USER", default="")}>'
+DEFAULT_FROM_EMAIL  = 'GetBua <noreply@getbua.com>'
 
 # ─── AUTH ─────────────────────────────────────────────────────────────────────
 DEFAULT_AUTO_FIELD  = 'django.db.models.BigAutoField'
