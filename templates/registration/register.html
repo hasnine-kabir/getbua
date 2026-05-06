@@ -2,43 +2,48 @@
 {% block title %}Register – GetBua{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center mt-3">
+<div class="row justify-content-center mt-3 mb-5">
   <div class="col-md-6">
     <div class="form-card">
 
       <!-- Header -->
       <div class="text-center mb-4">
-        <div style="font-size:3rem; color:#dc3545;">
-          <i class="bi bi-person-plus-fill"></i>
+        <div style="width:64px;height:64px;border-radius:16px;
+                    background:linear-gradient(135deg,#dc3545,#c0392b);
+                    display:flex;align-items:center;
+                    justify-content:center;margin:0 auto 16px;
+                    font-size:1.8rem;">
+          👤
         </div>
-        <h2 class="fw-bold">Create Your Account</h2>
-        <p class="text-muted">Join GetBua and find trusted domestic workers</p>
+        <h2 class="fw-bold mb-1">Create Your Account</h2>
+        <p class="text-muted small">
+          Join GetBua and find trusted domestic workers
+        </p>
       </div>
 
-      <!-- Form -->
       <form method="POST" novalidate>
         {% csrf_token %}
 
         <!-- Name Row -->
-        <div class="row">
-          <div class="col-6 mb-3">
-            <label class="form-label fw-semibold">
-              First Name <span class="text-danger">*</span>
+        <div class="row g-3 mb-3">
+          <div class="col-6">
+            <label class="form-label">
+              First Name <span style="color:#dc3545;">*</span>
             </label>
             {{ form.first_name }}
             {% if form.first_name.errors %}
-              <div class="text-danger small mt-1">
+              <div style="color:#dc3545;font-size:0.8rem;margin-top:4px;">
                 {{ form.first_name.errors|join:", " }}
               </div>
             {% endif %}
           </div>
-          <div class="col-6 mb-3">
-            <label class="form-label fw-semibold">
-              Last Name <span class="text-danger">*</span>
+          <div class="col-6">
+            <label class="form-label">
+              Last Name <span style="color:#dc3545;">*</span>
             </label>
             {{ form.last_name }}
             {% if form.last_name.errors %}
-              <div class="text-danger small mt-1">
+              <div style="color:#dc3545;font-size:0.8rem;margin-top:4px;">
                 {{ form.last_name.errors|join:", " }}
               </div>
             {% endif %}
@@ -47,12 +52,12 @@
 
         <!-- Username -->
         <div class="mb-3">
-          <label class="form-label fw-semibold">
-            Username <span class="text-danger">*</span>
+          <label class="form-label">
+            Username <span style="color:#dc3545;">*</span>
           </label>
           {{ form.username }}
           {% if form.username.errors %}
-            <div class="text-danger small mt-1">
+            <div style="color:#dc3545;font-size:0.8rem;margin-top:4px;">
               {{ form.username.errors|join:", " }}
             </div>
           {% endif %}
@@ -60,12 +65,12 @@
 
         <!-- Email -->
         <div class="mb-3">
-          <label class="form-label fw-semibold">
-            Email Address <span class="text-danger">*</span>
+          <label class="form-label">
+            Email Address <span style="color:#dc3545;">*</span>
           </label>
           {{ form.email }}
           {% if form.email.errors %}
-            <div class="text-danger small mt-1">
+            <div style="color:#dc3545;font-size:0.8rem;margin-top:4px;">
               {{ form.email.errors|join:", " }}
             </div>
           {% endif %}
@@ -73,25 +78,42 @@
 
         <!-- Phone -->
         <div class="mb-3">
-          <label class="form-label fw-semibold">
-            Phone Number <span class="text-danger">*</span>
+          <label class="form-label">
+            Phone Number <span style="color:#dc3545;">*</span>
           </label>
           {{ form.phone }}
           {% if form.phone.errors %}
-            <div class="text-danger small mt-1">
+            <div style="color:#dc3545;font-size:0.8rem;margin-top:4px;">
               {{ form.phone.errors|join:", " }}
+            </div>
+          {% endif %}
+        </div>
+
+        <!-- Birthday -->
+        <div class="mb-3">
+          <label class="form-label">
+            Birthday <span style="color:#dc3545;">*</span>
+          </label>
+          {{ form.birthday }}
+          <div class="form-text" style="color:#718096;font-size:0.8rem;">
+            <i class="bi bi-info-circle me-1"></i>
+            Required for password recovery — keep this safe
+          </div>
+          {% if form.birthday.errors %}
+            <div style="color:#dc3545;font-size:0.8rem;margin-top:4px;">
+              {{ form.birthday.errors|join:", " }}
             </div>
           {% endif %}
         </div>
 
         <!-- Password -->
         <div class="mb-3">
-          <label class="form-label fw-semibold">
-            Password <span class="text-danger">*</span>
+          <label class="form-label">
+            Password <span style="color:#dc3545;">*</span>
           </label>
           {{ form.password1 }}
           {% if form.password1.errors %}
-            <div class="text-danger small mt-1">
+            <div style="color:#dc3545;font-size:0.8rem;margin-top:4px;">
               {{ form.password1.errors|join:", " }}
             </div>
           {% endif %}
@@ -99,30 +121,31 @@
 
         <!-- Confirm Password -->
         <div class="mb-4">
-          <label class="form-label fw-semibold">
-            Confirm Password <span class="text-danger">*</span>
+          <label class="form-label">
+            Confirm Password <span style="color:#dc3545;">*</span>
           </label>
           {{ form.password2 }}
           {% if form.password2.errors %}
-            <div class="text-danger small mt-1">
+            <div style="color:#dc3545;font-size:0.8rem;margin-top:4px;">
               {{ form.password2.errors|join:", " }}
             </div>
           {% endif %}
         </div>
 
-        <!-- Submit Button -->
-        <button type="submit" class="btn btn-danger w-100 fw-bold py-2">
-          <i class="bi bi-person-check"></i> Create Account
+        <!-- Submit -->
+        <button type="submit"
+                class="btn btn-primary w-100 fw-bold py-2 mb-3">
+          <i class="bi bi-person-check me-2"></i>Create Account
         </button>
+
       </form>
 
-      <!-- Divider -->
-      <hr class="my-3">
+      <div class="divider"></div>
 
-      <!-- Login Link -->
-      <p class="text-center mb-0">
+      <p class="text-center mb-0 small">
         Already have an account?
-        <a href="{% url 'login' %}" class="text-danger fw-semibold">
+        <a href="{% url 'login' %}"
+           style="color:#4A90E2;font-weight:600;">
           Login here
         </a>
       </p>
