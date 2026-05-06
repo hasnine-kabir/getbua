@@ -3,82 +3,98 @@
 
 {% block content %}
 
-<!-- ── HERO ─────────────────────────────────────────── -->
-<div class="hero-section mb-5">
-  <div class="row align-items-center position-relative" style="z-index:1;">
-    <div class="col-lg-7">
+<!-- ── HERO ───────────────────────────────────────────── -->
+<div class="rounded-4 p-5 mb-5 position-relative overflow-hidden"
+     style="background:linear-gradient(135deg,#2C5AA0 0%,#4A90E2 60%,#64B5F6 100%);
+            min-height:320px;">
+  <!-- Decorative circles -->
+  <div style="position:absolute;top:-60px;right:-40px;width:320px;
+              height:320px;border-radius:50%;
+              background:rgba(255,255,255,0.06);"></div>
+  <div style="position:absolute;bottom:-80px;left:-20px;width:240px;
+              height:240px;border-radius:50%;
+              background:rgba(255,255,255,0.04);"></div>
+
+  <div class="row align-items-center position-relative"
+       style="z-index:1;">
+    <div class="col-lg-8">
       <div class="mb-3">
         <span style="background:rgba(255,255,255,0.15);
-                     color:white; padding:6px 16px;
-                     border-radius:20px; font-size:0.85rem;
-                     font-weight:600; letter-spacing:0.5px;">
+                     color:white;padding:6px 16px;
+                     border-radius:20px;font-size:0.85rem;
+                     font-weight:600;letter-spacing:0.5px;">
           🇧🇩 Bangladesh's #1 Verified Platform
         </span>
       </div>
       <h1 class="fw-bold mb-3"
-          style="font-size:2.8rem; line-height:1.15; color:white;">
+          style="font-size:2.8rem;line-height:1.15;color:white;">
         Find Verified &<br>Trusted Domestic<br>Workers
       </h1>
       <p class="mb-4"
-         style="color:rgba(255,255,255,0.85);
-                font-size:1.1rem; max-width:480px;">
+         style="color:rgba(255,255,255,0.88);font-size:1.05rem;
+                max-width:500px;">
         GetBua connects families with background-checked,
         NID-verified domestic workers across Dhaka,
-        Chittagong, Gazipur & Sylhet.
+        Chittagong, Gazipur and Sylhet.
       </p>
       <div class="d-flex gap-3 flex-wrap">
         <a href="{% url 'worker_list' %}"
-           class="btn btn-cta px-4 py-3 text-white"
-           style="background:white;color:#2C5AA0 !important;
-                  font-weight:700;border-radius:12px;
-                  box-shadow:0 4px 20px rgba(0,0,0,0.15);">
+           class="btn px-4 py-3 fw-bold"
+           style="background:white;color:#2C5AA0;
+                  border-radius:12px;
+                  box-shadow:0 4px 20px rgba(0,0,0,0.15);
+                  border:none;">
           <i class="bi bi-search me-2"></i>Browse Workers
         </a>
         <a href="{% url 'short_term_list' %}"
-           class="btn px-4 py-3"
+           class="btn px-4 py-3 fw-bold"
            style="background:rgba(255,255,255,0.15);
-                  color:white;font-weight:700;
-                  border-radius:12px;
+                  color:white;border-radius:12px;
                   border:2px solid rgba(255,255,255,0.4);">
           <i class="bi bi-lightning me-2"></i>Short-Term Jobs
         </a>
       </div>
     </div>
-    <div class="col-lg-5 d-none d-lg-flex justify-content-center">
-      <div style="display:grid;grid-template-columns:1fr 1fr;
-                  gap:16px;max-width:320px;">
-        {% for w in featured|slice:":4" %}
+
+    <!-- Stats on right side instead of photos -->
+    <div class="col-lg-4 d-none d-lg-block">
+      <div class="d-flex flex-column gap-3">
         <div style="background:rgba(255,255,255,0.12);
-                    border-radius:16px;padding:16px;
-                    backdrop-filter:blur(10px);
+                    border-radius:16px;padding:20px;
                     border:1px solid rgba(255,255,255,0.2);">
-          {% if w.photo %}
-            <img src="{{ w.photo.url }}"
-                 style="width:48px;height:48px;border-radius:50%;
-                        object-fit:cover;margin-bottom:8px;
-                        border:2px solid rgba(255,255,255,0.5);">
-          {% else %}
-            <div style="width:48px;height:48px;border-radius:50%;
-                        background:rgba(255,255,255,0.2);
-                        display:flex;align-items:center;
-                        justify-content:center;font-weight:800;
-                        color:white;font-size:1.1rem;
-                        margin-bottom:8px;">
-              {{ w.name|first|upper }}
-            </div>
-          {% endif %}
-          <div style="color:white;font-weight:600;
-                      font-size:0.85rem;">{{ w.name }}</div>
-          <div style="color:rgba(255,255,255,0.7);
-                      font-size:0.75rem;">{{ w.skills }}</div>
+          <div style="font-size:2rem;font-weight:800;color:white;">
+            500+
+          </div>
+          <div style="color:rgba(255,255,255,0.75);">
+            Verified Workers
+          </div>
         </div>
-        {% endfor %}
+        <div style="background:rgba(255,255,255,0.12);
+                    border-radius:16px;padding:20px;
+                    border:1px solid rgba(255,255,255,0.2);">
+          <div style="font-size:2rem;font-weight:800;color:white;">
+            1,200+
+          </div>
+          <div style="color:rgba(255,255,255,0.75);">
+            Happy Families
+          </div>
+        </div>
+        <div style="background:rgba(255,255,255,0.12);
+                    border-radius:16px;padding:20px;
+                    border:1px solid rgba(255,255,255,0.2);">
+          <div style="font-size:2rem;font-weight:800;color:white;">
+            4.8 ★
+          </div>
+          <div style="color:rgba(255,255,255,0.75);">
+            Average Rating
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ── STATS ─────────────────────────────────────────── -->
+<!-- ── STATS ROW ──────────────────────────────────────── -->
 <div class="row g-3 mb-5">
   <div class="col-6 col-md-3">
     <div class="stat-card">
@@ -106,7 +122,7 @@
   </div>
 </div>
 
-<!-- ── WHY GETBUA ────────────────────────────────────── -->
+<!-- ── WHY GETBUA ─────────────────────────────────────── -->
 <div class="text-center mb-4">
   <h2 class="section-title">Why Families Choose GetBua</h2>
   <p class="section-subtitle">
@@ -115,30 +131,12 @@
 </div>
 
 <div class="row g-4 mb-5">
-  {% for icon, title, desc, color in features %}
   <div class="col-md-3">
     <div class="card border-0 p-4 h-100 text-center">
       <div style="width:56px;height:56px;border-radius:14px;
-                  background:#4A90E215;
-                  display:flex;align-items:center;
-                  justify-content:center;margin:0 auto 16px;
-                  font-size:1.5rem;">
-        {{ icon }}
-      </div>
-      <h6 class="fw-bold mb-2">{{ title }}</h6>
-      <p class="text-muted small mb-0">{{ desc }}</p>
-    </div>
-  </div>
-  {% empty %}
-  <div class="col-md-3">
-    <div class="card border-0 p-4 h-100 text-center">
-      <div style="width:56px;height:56px;border-radius:14px;
-                  background:#4A90E215;
-                  display:flex;align-items:center;
-                  justify-content:center;margin:0 auto 16px;
-                  font-size:1.5rem;">
-        🛡️
-      </div>
+                  background:#4A90E215;display:flex;
+                  align-items:center;justify-content:center;
+                  margin:0 auto 16px;font-size:1.5rem;">🛡️</div>
       <h6 class="fw-bold mb-2">NID Verified</h6>
       <p class="text-muted small mb-0">
         Every worker's national ID verified before listing
@@ -148,12 +146,9 @@
   <div class="col-md-3">
     <div class="card border-0 p-4 h-100 text-center">
       <div style="width:56px;height:56px;border-radius:14px;
-                  background:#27AE6015;
-                  display:flex;align-items:center;
-                  justify-content:center;margin:0 auto 16px;
-                  font-size:1.5rem;">
-        ⭐
-      </div>
+                  background:#27AE6015;display:flex;
+                  align-items:center;justify-content:center;
+                  margin:0 auto 16px;font-size:1.5rem;">⭐</div>
       <h6 class="fw-bold mb-2">Rated Workers</h6>
       <p class="text-muted small mb-0">
         Real reviews from verified families you can trust
@@ -163,12 +158,9 @@
   <div class="col-md-3">
     <div class="card border-0 p-4 h-100 text-center">
       <div style="width:56px;height:56px;border-radius:14px;
-                  background:#8E44AD15;
-                  display:flex;align-items:center;
-                  justify-content:center;margin:0 auto 16px;
-                  font-size:1.5rem;">
-        ⚡
-      </div>
+                  background:#8E44AD15;display:flex;
+                  align-items:center;justify-content:center;
+                  margin:0 auto 16px;font-size:1.5rem;">⚡</div>
       <h6 class="fw-bold mb-2">Short-Term Hire</h6>
       <p class="text-muted small mb-0">
         Need help for just a few days? We have per-day workers
@@ -178,22 +170,18 @@
   <div class="col-md-3">
     <div class="card border-0 p-4 h-100 text-center">
       <div style="width:56px;height:56px;border-radius:14px;
-                  background:#F59E0B15;
-                  display:flex;align-items:center;
-                  justify-content:center;margin:0 auto 16px;
-                  font-size:1.5rem;">
-        🔄
-      </div>
+                  background:#F59E0B15;display:flex;
+                  align-items:center;justify-content:center;
+                  margin:0 auto 16px;font-size:1.5rem;">🔄</div>
       <h6 class="fw-bold mb-2">Free Replacement</h6>
       <p class="text-muted small mb-0">
         Not satisfied? Request a replacement anytime, free
       </p>
     </div>
   </div>
-  {% endfor %}
 </div>
 
-<!-- ── FEATURED WORKERS ──────────────────────────────── -->
+<!-- ── FEATURED WORKERS ───────────────────────────────── -->
 {% if featured %}
 <div class="mb-5">
   <div class="d-flex justify-content-between align-items-center mb-4">
@@ -208,30 +196,23 @@
       View All <i class="bi bi-arrow-right ms-1"></i>
     </a>
   </div>
-
   <div class="row row-cols-1 row-cols-md-3 g-4">
     {% for worker in featured %}
     <div class="col">
       <div class="card worker-card h-100 p-4">
         <div class="d-flex align-items-center mb-3">
-          {% if worker.photo %}
-            <img src="{{ worker.photo.url }}"
-                 class="worker-avatar me-3">
-          {% else %}
-            <div class="worker-avatar-placeholder me-3">
-              {{ worker.name|first|upper }}
-            </div>
-          {% endif %}
+          <div class="worker-avatar-placeholder me-3">
+            {{ worker.name|first|upper }}
+          </div>
           <div>
             <h6 class="fw-bold mb-1">{{ worker.name }}</h6>
             <small class="text-muted">
               <i class="bi bi-geo-alt-fill"
-                 style="color:var(--primary);"></i>
+                 style="color:#4A90E2;"></i>
               {{ worker.location }}
             </small>
           </div>
         </div>
-
         <div class="mb-2 d-flex flex-wrap gap-1">
           {% if worker.is_verified %}
           <span class="badge-verified">
@@ -247,15 +228,10 @@
           </span>
           {% endif %}
         </div>
-
-        <p class="small mb-2">
-          <i class="bi bi-tools"
-             style="color:var(--primary);"></i>
-          {{ worker.skills }}
-          <span class="text-muted">·</span>
-          {{ worker.experience }}yr exp
+        <p class="small mb-2 text-muted">
+          <i class="bi bi-tools" style="color:#4A90E2;"></i>
+          {{ worker.skills }} · {{ worker.experience }}yr exp
         </p>
-
         <div class="star-rating small mb-3">
           {% for _ in worker.star_range %}
             <i class="bi bi-star-fill"></i>
@@ -264,16 +240,14 @@
             <i class="bi bi-star empty"></i>
           {% endfor %}
           <span class="text-muted ms-1">
-            {{ worker.avg_rating }}
-            ({{ worker.total_reviews }})
+            {{ worker.avg_rating }} ({{ worker.total_reviews }})
           </span>
         </div>
-
         <div class="d-flex justify-content-between
                     align-items-center mt-auto">
           <div>
             <span class="fw-bold"
-                  style="color:var(--success);font-size:1.1rem;">
+                  style="color:#27AE60;font-size:1.05rem;">
               ৳{{ worker.salary }}
             </span>
             <span class="text-muted small">/month</span>
@@ -296,39 +270,37 @@
 </div>
 {% endif %}
 
-<!-- ── SHORT TERM SECTION ────────────────────────────── -->
-<div class="mb-5 p-4 rounded-4"
+<!-- ── SHORT TERM BANNER ───────────────────────────────── -->
+<div class="p-4 rounded-4 mb-5"
      style="background:linear-gradient(135deg,#8E44AD15,#6C348315);
-            border:1px solid #8E44AD30;">
+            border:1px solid rgba(142,68,173,0.2);">
   <div class="row align-items-center">
     <div class="col-md-8">
       <h3 class="fw-bold mb-2">
-        <i class="bi bi-lightning-fill"
+        <i class="bi bi-lightning-fill me-2"
            style="color:#8E44AD;"></i>
         Need a Worker for Just a Few Days?
       </h3>
       <p class="text-muted mb-0">
-        Browse our short-term workers available for
-        daily hire. Perfect for Eid cleaning, events,
-        guest visits, and more.
+        Browse short-term workers available for daily hire.
+        Perfect for Eid cleaning, events, guest visits and more.
       </p>
     </div>
     <div class="col-md-4 text-md-end mt-3 mt-md-0">
       <a href="{% url 'short_term_list' %}"
          class="btn px-4 py-2 fw-bold"
          style="background:#8E44AD;color:white;
-                border-radius:12px;">
+                border-radius:12px;border:none;">
         <i class="bi bi-search me-2"></i>Browse Short-Term
       </a>
     </div>
   </div>
 </div>
 
-<!-- ── CTA ───────────────────────────────────────────── -->
+<!-- ── CTA ────────────────────────────────────────────── -->
 {% if not user.is_authenticated %}
 <div class="text-center py-5 px-4 rounded-4 mb-2"
-     style="background:linear-gradient(135deg,
-            var(--primary-dark),var(--primary));
+     style="background:linear-gradient(135deg,#2C5AA0,#4A90E2);
             color:white;">
   <h2 class="fw-bold mb-2">Ready to Find Your Worker?</h2>
   <p class="mb-4" style="opacity:0.88;">
@@ -337,8 +309,8 @@
   </p>
   <a href="{% url 'register' %}"
      class="btn px-5 py-3 fw-bold"
-     style="background:white;color:var(--primary-dark);
-            border-radius:12px;font-size:1rem;">
+     style="background:white;color:#2C5AA0;
+            border-radius:12px;font-size:1rem;border:none;">
     <i class="bi bi-person-plus me-2"></i>Create Free Account
   </a>
 </div>
