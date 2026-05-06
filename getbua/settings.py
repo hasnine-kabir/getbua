@@ -26,8 +26,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'cloudinary_storage',
-    'cloudinary',
     'core',
 ]
 
@@ -93,25 +91,11 @@ USE_TZ        = True
 STATIC_URL       = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT      = BASE_DIR / 'staticfiles'
-
-STATICFILES_STORAGE = (
-    'whitenoise.storage.CompressedManifestStaticFilesStorage'
-)
+STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
 
 # ─── MEDIA FILES ──────────────────────────────────────────────────────────────
 MEDIA_URL  = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-
-# ─── CLOUDINARY ───────────────────────────────────────────────────────────────
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default=''),
-    'API_KEY':    config('CLOUDINARY_API_KEY',    default=''),
-    'API_SECRET': config('CLOUDINARY_API_SECRET', default=''),
-}
-
-DEFAULT_FILE_STORAGE = (
-    'cloudinary_storage.storage.MediaCloudinaryStorage'
-)
 
 # ─── EMAIL ────────────────────────────────────────────────────────────────────
 EMAIL_BACKEND       = 'django.core.mail.backends.smtp.EmailBackend'
@@ -122,7 +106,6 @@ EMAIL_HOST_USER     = config('EMAIL_HOST_USER',     default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL  = 'GetBua <noreply@getbua.com>'
 
-# ─── AUTH ─────────────────────────────────────────────────────────────────────
 DEFAULT_AUTO_FIELD  = 'django.db.models.BigAutoField'
 LOGIN_URL           = '/login/'
 LOGIN_REDIRECT_URL  = '/'

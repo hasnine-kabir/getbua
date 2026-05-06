@@ -1,0 +1,366 @@
+{% extends 'base.html' %}
+{% block title %}Worker Training Program – GetBua{% endblock %}
+
+{% block content %}
+
+<div class="text-center py-5 rounded-4 mb-5"
+     style="background:linear-gradient(135deg,
+            var(--primary-dark),var(--primary));color:white;">
+  <div style="font-size:4rem;" class="mb-3">🎓</div>
+  <h1 class="fw-bold">GetBua Training Program</h1>
+  <p class="mb-0" style="opacity:0.9;max-width:600px;margin:0 auto;">
+    Every worker on GetBua goes through comprehensive training
+    and verification before being listed on our platform.
+  </p>
+</div>
+
+<div class="row g-4 mb-5">
+  <div class="col-md-4">
+    <div class="card border-0 p-4 h-100 text-center">
+      <div style="font-size:3rem;" class="mb-3">📋</div>
+      <span class="badge mb-2 px-3 py-2"
+            style="background:var(--primary);">Step 1</span>
+      <h5 class="fw-bold">Application & Screening</h5>
+      <p class="text-muted small">
+        Every worker goes through initial screening.
+        We collect NID, address, and personal references
+        before anything begins.
+      </p>
+      <ul class="list-unstyled text-start small text-muted mt-2">
+        <li class="mb-1">
+          <i class="bi bi-check-circle-fill me-2"
+             style="color:var(--success);"></i>NID verification
+        </li>
+        <li class="mb-1">
+          <i class="bi bi-check-circle-fill me-2"
+             style="color:var(--success);"></i>Address confirmation
+        </li>
+        <li class="mb-1">
+          <i class="bi bi-check-circle-fill me-2"
+             style="color:var(--success);"></i>Reference check
+        </li>
+        <li>
+          <i class="bi bi-check-circle-fill me-2"
+             style="color:var(--success);"></i>Guardian contact
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card border-0 p-4 h-100 text-center">
+      <div style="font-size:3rem;" class="mb-3">📚</div>
+      <span class="badge mb-2 px-3 py-2"
+            style="background:var(--primary);">Step 2</span>
+      <h5 class="fw-bold">Classroom Training</h5>
+      <p class="text-muted small">
+        Workers attend a structured training program covering
+        professional conduct, household safety, and
+        work ethics.
+      </p>
+      <ul class="list-unstyled text-start small text-muted mt-2">
+        <li class="mb-1">
+          <i class="bi bi-check-circle-fill me-2"
+             style="color:var(--success);"></i>Household hygiene
+        </li>
+        <li class="mb-1">
+          <i class="bi bi-check-circle-fill me-2"
+             style="color:var(--success);"></i>Professional conduct
+        </li>
+        <li class="mb-1">
+          <i class="bi bi-check-circle-fill me-2"
+             style="color:var(--success);"></i>Privacy & respect
+        </li>
+        <li>
+          <i class="bi bi-check-circle-fill me-2"
+             style="color:var(--success);"></i>Emergency procedures
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card border-0 p-4 h-100 text-center">
+      <div style="font-size:3rem;" class="mb-3">🏆</div>
+      <span class="badge mb-2 px-3 py-2"
+            style="background:var(--primary);">Step 3</span>
+      <h5 class="fw-bold">Certification & Listing</h5>
+      <p class="text-muted small">
+        Only workers who pass all modules and background
+        checks receive the GetBua Verified badge.
+      </p>
+      <ul class="list-unstyled text-start small text-muted mt-2">
+        <li class="mb-1">
+          <i class="bi bi-check-circle-fill me-2"
+             style="color:var(--success);"></i>Written assessment
+        </li>
+        <li class="mb-1">
+          <i class="bi bi-check-circle-fill me-2"
+             style="color:var(--success);"></i>Practical evaluation
+        </li>
+        <li class="mb-1">
+          <i class="bi bi-check-circle-fill me-2"
+             style="color:var(--success);"></i>Admin final approval
+        </li>
+        <li>
+          <i class="bi bi-check-circle-fill me-2"
+             style="color:var(--success);"></i>Profile published
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="p-4 rounded-4 mb-5"
+     style="background:var(--bg);border:1px solid var(--border);">
+  <h4 class="fw-bold mb-4 text-center">Training Modules</h4>
+  <div class="row g-3">
+    {% for module in modules %}
+    <div class="col-md-4">
+      <div class="card border-0 p-3 h-100">
+        <div class="d-flex align-items-center mb-2">
+          <div style="width:42px;height:42px;border-radius:10px;
+                      background:var(--primary)15;
+                      display:flex;align-items:center;
+                      justify-content:center;font-size:1.2rem;
+                      flex-shrink:0;margin-right:12px;">
+            {{ module.0 }}
+          </div>
+          <h6 class="fw-bold mb-0">{{ module.1 }}</h6>
+        </div>
+        <p class="small text-muted mb-0">{{ module.2 }}</p>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-md-4">
+      <div class="card border-0 p-3 h-100">
+        <div class="d-flex align-items-center mb-2">
+          <div style="width:42px;height:42px;border-radius:10px;
+                      background:#4A90E215;display:flex;
+                      align-items:center;justify-content:center;
+                      font-size:1.2rem;flex-shrink:0;margin-right:12px;">
+            🍳
+          </div>
+          <h6 class="fw-bold mb-0">Cooking & Food Safety</h6>
+        </div>
+        <p class="small text-muted mb-0">
+          Proper food handling, hygiene, and safe kitchen practices.
+        </p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-0 p-3 h-100">
+        <div class="d-flex align-items-center mb-2">
+          <div style="width:42px;height:42px;border-radius:10px;
+                      background:#27AE6015;display:flex;
+                      align-items:center;justify-content:center;
+                      font-size:1.2rem;flex-shrink:0;margin-right:12px;">
+            👶
+          </div>
+          <h6 class="fw-bold mb-0">Childcare Safety</h6>
+        </div>
+        <p class="small text-muted mb-0">
+          Safe handling of infants, first aid, and child development basics.
+        </p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-0 p-3 h-100">
+        <div class="d-flex align-items-center mb-2">
+          <div style="width:42px;height:42px;border-radius:10px;
+                      background:#8E44AD15;display:flex;
+                      align-items:center;justify-content:center;
+                      font-size:1.2rem;flex-shrink:0;margin-right:12px;">
+            🧹
+          </div>
+          <h6 class="fw-bold mb-0">Cleaning & Sanitation</h6>
+        </div>
+        <p class="small text-muted mb-0">
+          Proper cleaning products, bathroom hygiene, and laundry.
+        </p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-0 p-3 h-100">
+        <div class="d-flex align-items-center mb-2">
+          <div style="width:42px;height:42px;border-radius:10px;
+                      background:#F59E0B15;display:flex;
+                      align-items:center;justify-content:center;
+                      font-size:1.2rem;flex-shrink:0;margin-right:12px;">
+            🤝
+          </div>
+          <h6 class="fw-bold mb-0">Professional Conduct</h6>
+        </div>
+        <p class="small text-muted mb-0">
+          Punctuality, respectful communication and privacy.
+        </p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-0 p-3 h-100">
+        <div class="d-flex align-items-center mb-2">
+          <div style="width:42px;height:42px;border-radius:10px;
+                      background:#E74C3C15;display:flex;
+                      align-items:center;justify-content:center;
+                      font-size:1.2rem;flex-shrink:0;margin-right:12px;">
+            🧓
+          </div>
+          <h6 class="fw-bold mb-0">Elderly Care</h6>
+        </div>
+        <p class="small text-muted mb-0">
+          Compassionate care, medication reminders, mobility assistance.
+        </p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-0 p-3 h-100">
+        <div class="d-flex align-items-center mb-2">
+          <div style="width:42px;height:42px;border-radius:10px;
+                      background:#E74C3C15;display:flex;
+                      align-items:center;justify-content:center;
+                      font-size:1.2rem;flex-shrink:0;margin-right:12px;">
+            🚨
+          </div>
+          <h6 class="fw-bold mb-0">Emergency Response</h6>
+        </div>
+        <p class="small text-muted mb-0">
+          First aid, fire safety, emergency contacts and procedures.
+        </p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="row g-4 mb-5">
+  <div class="col-md-6">
+    <h3 class="fw-bold mb-4">
+      <i class="bi bi-shield-fill-check me-2"
+         style="color:var(--success);"></i>
+      Your Family's Safety is Guaranteed
+    </h3>
+    <div class="d-flex flex-column gap-3">
+      <div class="d-flex align-items-start">
+        <div style="width:40px;height:40px;border-radius:10px;
+                    background:var(--success);color:white;
+                    display:flex;align-items:center;
+                    justify-content:center;flex-shrink:0;
+                    margin-right:14px;">
+          <i class="bi bi-person-badge"></i>
+        </div>
+        <div>
+          <div class="fw-semibold">NID Verified Identity</div>
+          <div class="small text-muted">
+            Every worker's national ID is verified before listing
+          </div>
+        </div>
+      </div>
+      <div class="d-flex align-items-start">
+        <div style="width:40px;height:40px;border-radius:10px;
+                    background:var(--primary);color:white;
+                    display:flex;align-items:center;
+                    justify-content:center;flex-shrink:0;
+                    margin-right:14px;">
+          <i class="bi bi-telephone-fill"></i>
+        </div>
+        <div>
+          <div class="fw-semibold">Emergency Contact on File</div>
+          <div class="small text-muted">
+            Guardian contact details stored for every worker
+          </div>
+        </div>
+      </div>
+      <div class="d-flex align-items-start">
+        <div style="width:40px;height:40px;border-radius:10px;
+                    background:#F59E0B;color:white;
+                    display:flex;align-items:center;
+                    justify-content:center;flex-shrink:0;
+                    margin-right:14px;">
+          <i class="bi bi-arrow-repeat"></i>
+        </div>
+        <div>
+          <div class="fw-semibold">Free Replacement Guarantee</div>
+          <div class="small text-muted">
+            Not satisfied? Request a replacement anytime
+          </div>
+        </div>
+      </div>
+      <div class="d-flex align-items-start">
+        <div style="width:40px;height:40px;border-radius:10px;
+                    background:#8E44AD;color:white;
+                    display:flex;align-items:center;
+                    justify-content:center;flex-shrink:0;
+                    margin-right:14px;">
+          <i class="bi bi-star-fill"></i>
+        </div>
+        <div>
+          <div class="fw-semibold">Real Family Reviews</div>
+          <div class="small text-muted">
+            Honest ratings from verified families before hiring
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card border-0 p-4"
+         style="background:linear-gradient(135deg,
+                var(--primary)08,var(--primary)15);
+                border:1px solid var(--primary)30 !important;">
+      <h5 class="fw-bold mb-4 text-center">
+        Platform Safety Stats
+      </h5>
+      <div class="row g-3 text-center">
+        <div class="col-6">
+          <div class="p-3 rounded-3"
+               style="background:white;">
+            <div class="fw-bold fs-3"
+                 style="color:var(--primary);">100%</div>
+            <div class="small text-muted">NID Verified</div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="p-3 rounded-3"
+               style="background:white;">
+            <div class="fw-bold fs-3"
+                 style="color:var(--success);">500+</div>
+            <div class="small text-muted">Trained Workers</div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="p-3 rounded-3"
+               style="background:white;">
+            <div class="fw-bold fs-3"
+                 style="color:var(--primary-dark);">1200+</div>
+            <div class="small text-muted">Happy Families</div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="p-3 rounded-3"
+               style="background:white;">
+            <div class="fw-bold fs-3"
+                 style="color:#F59E0B;">4.8★</div>
+            <div class="small text-muted">Avg Rating</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="text-center py-5 rounded-4"
+     style="background:linear-gradient(135deg,
+            var(--primary-dark),var(--primary));
+            color:white;">
+  <h2 class="fw-bold mb-2">Ready to Hire a Trained Worker?</h2>
+  <p class="mb-4" style="opacity:0.9;">
+    Browse our verified, trained workers and find the perfect
+    match for your family.
+  </p>
+  <a href="{% url 'worker_list' %}"
+     class="btn px-5 py-3 fw-bold"
+     style="background:white;color:var(--primary-dark);
+            border-radius:12px;">
+    <i class="bi bi-search me-2"></i>Browse Workers Now
+  </a>
+</div>
+
+{% endblock %}
