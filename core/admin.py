@@ -92,10 +92,10 @@ class WorkerAdmin(admin.ModelAdmin):
 
 @admin.register(HiringRequest)
 class HiringRequestAdmin(admin.ModelAdmin):
-    list_display  = ['user', 'worker', 'status',
-                     'proposed_salary', 'salary_status', 'created_at']
-    list_filter   = ['status', 'created_at']
-    search_fields = ['user__username', 'worker__name']
+    list_display  = ['user', 'worker', 'status', 'hire_type',
+                     'proposed_salary', 'delivery_address', 'created_at']
+    list_filter   = ['status', 'hire_type', 'created_at']
+    search_fields = ['user__username', 'worker__name', 'delivery_address']
     list_editable = ['status']
     ordering      = ['-created_at']
 
