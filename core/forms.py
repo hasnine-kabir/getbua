@@ -12,12 +12,18 @@ class RegisterForm(UserCreationForm):
     birthday   = forms.DateField(
                      required=True,
                      widget=forms.DateInput(attrs={'type': 'date'}),
-                     help_text="Required for account recovery")
+                     help_text="Required for password recovery")
+    # FIX 1: Add address to registration
+    address    = forms.CharField(
+                     max_length=255,
+                     required=True,
+                     widget=forms.TextInput(),
+                     help_text="Your home address — worker will be sent here")
 
     class Meta:
         model  = User
         fields = ['username', 'first_name', 'last_name',
-                  'email', 'phone', 'birthday',
+                  'email', 'phone', 'birthday', 'address',
                   'password1', 'password2']
 
     def __init__(self, *args, **kwargs):
@@ -30,6 +36,7 @@ class RegisterForm(UserCreationForm):
         self.fields['last_name'].widget.attrs['placeholder']  = 'Your last name'
         self.fields['email'].widget.attrs['placeholder']      = 'your@email.com'
         self.fields['phone'].widget.attrs['placeholder']      = '01XXXXXXXXX'
+        self.fields['address'].widget.attrs['placeholder']    = 'e.g. Flat 4B, House 12, Road 5, Mirpur, Dhaka'
         self.fields['password1'].widget.attrs['placeholder']  = 'Create password'
         self.fields['password2'].widget.attrs['placeholder']  = 'Confirm password'
         self.fields['username'].help_text  = None
@@ -45,6 +52,7 @@ class RegisterForm(UserCreationForm):
             user.save()
             user.profile.phone    = self.cleaned_data['phone']
             user.profile.birthday = self.cleaned_data['birthday']
+            user.profile.address  = self.cleaned_data['address']
             user.profile.save()
         return user
 
@@ -95,10 +103,9 @@ class ProfileEditForm(forms.ModelForm):
             'phone':   forms.TextInput(attrs={
                            'class': 'form-control',
                            'placeholder': '01XXXXXXXXX'}),
-            'address': forms.Textarea(attrs={
+            'address': forms.TextInput(attrs={
                            'class': 'form-control',
-                           'rows': 2,
-                           'placeholder': 'Your address'}),
+                           'placeholder': 'e.g. Flat 4B, House 12, Road 5, Mirpur, Dhaka'}),
             'bio':     forms.Textarea(attrs={
                            'class': 'form-control',
                            'rows': 3,
@@ -107,7 +114,6 @@ class ProfileEditForm(forms.ModelForm):
 
 
 class PasswordResetForm(forms.Form):
-    """Custom password reset — no email, uses birthday verification."""
     email    = forms.EmailField(
         widget=forms.EmailInput(attrs={
             'class': 'form-control',
