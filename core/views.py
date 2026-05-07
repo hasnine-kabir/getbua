@@ -97,28 +97,57 @@ def custom_password_reset(request):
 
             # Find user by email
             try:
+                from django.contrib.auth.models import User
                 user = User.objects.get(email=email)
             except User.DoesNotExist:
                 messages.error(
                     request,
                     "No account found with that email address."
                 )
-                return render(request,
-                              'registration/password_reset_custom.html',
-                              {'form': form})
+                return render(
+                    request,
+                    'registration/password_reset_custom.html',
+                    {'form': form}
+                )
 
-            # Verify birthday
-            if (not hasattr(user, 'profile') or
-                    user.profile.birthday != birthday):
+            # Verify birthday matches
+            try:
+                profile = user.profile
+                if not profile.birthday:
+                    messages.error(
+                        request,
+                        "This account has no birthday on record. "
+                        "Please contact admin."
+                    )
+                    return render(
+                        request,
+                        'registration/password_reset_custom.html',
+                        {'form': form}
+                    )
+
+                if profile.birthday != birthday:
+                    messages.error(
+                        request,
+                        "Email and birthday do not match our records. "
+                        "Please try again."
+                    )
+                    return render(
+                        request,
+                        'registration/password_reset_custom.html',
+                        {'form': form}
+                    )
+            except Exception:
                 messages.error(
                     request,
-                    "Email and birthday do not match our records."
+                    "Could not verify your identity. Please contact admin."
                 )
-                return render(request,
-                              'registration/password_reset_custom.html',
-                              {'form': form})
+                return render(
+                    request,
+                    'registration/password_reset_custom.html',
+                    {'form': form}
+                )
 
-            # Reset password
+            # All checks passed — reset password
             user.set_password(new_pass)
             user.save()
             messages.success(
@@ -127,12 +156,15 @@ def custom_password_reset(request):
                 "You can now login with your new password."
             )
             return redirect('login')
+
     else:
         form = PasswordResetForm()
 
-    return render(request,
-                  'registration/password_reset_custom.html',
-                  {'form': form})
+    return render(
+        request,
+        'registration/password_reset_custom.html',
+        {'form': form}
+    )
 
 
 # ─── PROFILE ──────────────────────────────────────────────────────────────────
