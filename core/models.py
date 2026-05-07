@@ -12,7 +12,8 @@ class UserProfile(models.Model):
     phone    = models.CharField(max_length=15, blank=True)
     birthday = models.DateField(null=True, blank=True,
                                 help_text="Used for password reset verification")
-    address  = models.TextField(blank=True)
+    address  = models.TextField(blank=True,
+                                help_text="Home address — worker will be sent here")
     bio      = models.TextField(blank=True)
 
     def __str__(self):
@@ -57,10 +58,10 @@ class Worker(models.Model):
     ]
 
     WORK_TYPE_CHOICES = [
-        ('Full Time',  'Full Time'),
-        ('Part Time',  'Part Time'),
-        ('Live-in',    'Live-in'),
-        ('Live-out',   'Live-out'),
+        ('Full Time', 'Full Time'),
+        ('Part Time', 'Part Time'),
+        ('Live-in',   'Live-in'),
+        ('Live-out',  'Live-out'),
     ]
 
     WORK_HOURS_CHOICES = [
@@ -90,67 +91,75 @@ class Worker(models.Model):
         ('Other',    'Other'),
     ]
 
-    # Basic Info
-    name         = models.CharField(max_length=100)
-    age          = models.PositiveIntegerField()
-    location     = models.CharField(max_length=50, choices=LOCATION_CHOICES)
-    phone        = models.CharField(max_length=15, blank=True)
-    address      = models.TextField(blank=True)
+    # ── Basic Info ────────────────────────────────────────────────────────────
+    name        = models.CharField(max_length=100)
+    age         = models.PositiveIntegerField()
+    location    = models.CharField(max_length=50, choices=LOCATION_CHOICES)
+    phone       = models.CharField(max_length=15, blank=True)
+    address     = models.TextField(blank=True)
 
-    # Work Info
-    skills       = models.CharField(max_length=100, choices=SKILL_CHOICES)
-    experience   = models.PositiveIntegerField(default=0)
-    salary       = models.PositiveIntegerField(
-                       help_text="Monthly salary in BDT")
+    # ── Work Info ─────────────────────────────────────────────────────────────
+    skills      = models.CharField(max_length=100, choices=SKILL_CHOICES)
+    experience  = models.PositiveIntegerField(
+                      default=0,
+                      help_text="Years of experience")
+    salary      = models.PositiveIntegerField(
+                      help_text="Monthly salary in BDT")
 
-    # Short-Term / Per Day
+    # ── Short-Term / Per Day ──────────────────────────────────────────────────
     accepts_short_term = models.BooleanField(
                              default=False,
                              help_text="Available for short-term/daily hire")
     daily_rate         = models.PositiveIntegerField(
                              null=True, blank=True,
-                             help_text="Per day rate in BDT (for short-term)")
+                             help_text="Per day rate in BDT (for short-term hire)")
     min_days           = models.PositiveIntegerField(
                              default=1,
-                             help_text="Minimum days for short-term hire")
+                             help_text="Minimum number of days for short-term hire")
 
-    # Working Schedule
-    work_type    = models.CharField(max_length=20,
-                       choices=WORK_TYPE_CHOICES, default='Full Time')
-    work_hours   = models.CharField(max_length=40,
-                       choices=WORK_HOURS_CHOICES,
-                       default='Full Day (8AM - 6PM)')
-    day_off      = models.CharField(max_length=30,
-                       choices=DAY_OFF_CHOICES, default='Friday')
-    extra_notes  = models.TextField(blank=True)
+    # ── Working Schedule ──────────────────────────────────────────────────────
+    work_type   = models.CharField(max_length=20,
+                      choices=WORK_TYPE_CHOICES,
+                      default='Full Time')
+    work_hours  = models.CharField(max_length=40,
+                      choices=WORK_HOURS_CHOICES,
+                      default='Full Day (8AM - 6PM)')
+    day_off     = models.CharField(max_length=30,
+                      choices=DAY_OFF_CHOICES,
+                      default='Friday')
+    extra_notes = models.TextField(blank=True)
 
-    # Status
+    # ── Status ────────────────────────────────────────────────────────────────
     is_verified  = models.BooleanField(default=False)
     availability = models.CharField(max_length=20,
-                       choices=AVAILABILITY_CHOICES, default='Available')
+                       choices=AVAILABILITY_CHOICES,
+                       default='Available')
 
-    # Photo
-    photo        = models.ImageField(upload_to='workers/',
-                       blank=True, null=True)
+    # ── Photo ─────────────────────────────────────────────────────────────────
+    photo       = models.ImageField(upload_to='workers/',
+                      blank=True, null=True)
 
-    # NID
-    nid_number   = models.CharField(max_length=20, blank=True)
+    # ── NID ───────────────────────────────────────────────────────────────────
+    nid_number  = models.CharField(max_length=20, blank=True)
 
-    # Emergency Contact
+    # ── Emergency / Guardian Contact ──────────────────────────────────────────
     guardian_name     = models.CharField(max_length=100, blank=True)
     guardian_phone    = models.CharField(max_length=15,  blank=True)
     guardian_relation = models.CharField(max_length=20,
-                            choices=GUARDIAN_RELATION_CHOICES, blank=True)
+                            choices=GUARDIAN_RELATION_CHOICES,
+                            blank=True)
 
-    # Admin Notes (private)
-    admin_notes  = models.TextField(blank=True)
+    # ── Admin Private Notes ───────────────────────────────────────────────────
+    admin_notes = models.TextField(blank=True,
+                      help_text="Private admin notes — NOT shown to users")
 
-    # Ratings
+    # ── Ratings (auto-calculated) ─────────────────────────────────────────────
     avg_rating    = models.FloatField(default=0.0)
     total_reviews = models.PositiveIntegerField(default=0)
 
-    created_at   = models.DateTimeField(auto_now_add=True)
-    updated_at   = models.DateTimeField(auto_now=True)
+    # ── Timestamps ────────────────────────────────────────────────────────────
+    created_at  = models.DateTimeField(auto_now_add=True)
+    updated_at  = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['-created_at']
@@ -160,7 +169,7 @@ class Worker(models.Model):
 
     def update_rating(self):
         from django.db.models import Avg
-        result = self.reviews.aggregate(Avg('score'))
+        result        = self.reviews.aggregate(Avg('score'))
         self.avg_rating    = round(result['score__avg'] or 0.0, 1)
         self.total_reviews = self.reviews.count()
         self.save(update_fields=['avg_rating', 'total_reviews'])
@@ -177,6 +186,7 @@ class Worker(models.Model):
 
 # ─── HIRING REQUEST ───────────────────────────────────────────────────────────
 class HiringRequest(models.Model):
+
     STATUS_CHOICES = [
         ('Pending',   'Pending'),
         ('Approved',  'Approved'),
@@ -189,27 +199,39 @@ class HiringRequest(models.Model):
         ('Short Term', 'Short Term'),
     ]
 
-    user            = models.ForeignKey(User,   on_delete=models.CASCADE,
-                                        related_name='hiring_requests')
-    worker          = models.ForeignKey(Worker, on_delete=models.CASCADE,
-                                        related_name='hiring_requests')
-    status          = models.CharField(max_length=20,
-                                       choices=STATUS_CHOICES,
-                                       default='Pending')
-    hire_type       = models.CharField(max_length=20,
-                                       choices=HIRE_TYPE_CHOICES,
-                                       default='Full Time')
-    message         = models.TextField(blank=True)
-    proposed_salary = models.PositiveIntegerField(null=True, blank=True)
+    user             = models.ForeignKey(User,   on_delete=models.CASCADE,
+                                         related_name='hiring_requests')
+    worker           = models.ForeignKey(Worker, on_delete=models.CASCADE,
+                                         related_name='hiring_requests')
+    status           = models.CharField(max_length=20,
+                                        choices=STATUS_CHOICES,
+                                        default='Pending')
+    hire_type        = models.CharField(max_length=20,
+                                        choices=HIRE_TYPE_CHOICES,
+                                        default='Full Time')
+    message          = models.TextField(blank=True)
 
-    # Short-term specific
-    duration_days   = models.PositiveIntegerField(
-                          null=True, blank=True,
-                          help_text="Number of days (for short-term)")
-    start_date      = models.DateField(null=True, blank=True)
+    # ── Salary Negotiation ────────────────────────────────────────────────────
+    proposed_salary  = models.PositiveIntegerField(
+                           null=True, blank=True,
+                           help_text="Salary proposed by family in BDT/month")
 
-    created_at      = models.DateTimeField(auto_now_add=True)
-    updated_at      = models.DateTimeField(auto_now=True)
+    # ── Delivery Address ──────────────────────────────────────────────────────
+    delivery_address = models.TextField(
+                           blank=True,
+                           help_text="Full address where worker should be sent")
+
+    # ── Short-Term Specific ───────────────────────────────────────────────────
+    duration_days    = models.PositiveIntegerField(
+                           null=True, blank=True,
+                           help_text="Number of days (for short-term hire)")
+    start_date       = models.DateField(
+                           null=True, blank=True,
+                           help_text="Requested start date")
+
+    # ── Timestamps ────────────────────────────────────────────────────────────
+    created_at       = models.DateTimeField(auto_now_add=True)
+    updated_at       = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering        = ['-created_at']
@@ -220,6 +242,7 @@ class HiringRequest(models.Model):
                 f"{self.worker.name} [{self.status}]")
 
     def total_cost(self):
+        """Calculate total cost for short-term hire."""
         if (self.hire_type == 'Short Term'
                 and self.duration_days
                 and self.worker.daily_rate):
@@ -227,17 +250,19 @@ class HiringRequest(models.Model):
         return None
 
     def salary_status(self):
+        """Show salary negotiation summary."""
         if not self.proposed_salary:
-            return f"Accepted ৳{self.worker.salary}"
+            return f"Accepted ৳{self.worker.salary}/month"
         if self.proposed_salary < self.worker.salary:
             return (f"Proposed ৳{self.proposed_salary} "
                     f"(asked ৳{self.worker.salary})")
-        return f"Proposed ৳{self.proposed_salary}"
+        return f"Proposed ৳{self.proposed_salary}/month"
 
 
 # ─── CONTRACT ─────────────────────────────────────────────────────────────────
 class Contract(models.Model):
-    hiring_request = models.OneToOneField(HiringRequest,
+    hiring_request = models.OneToOneField(
+                         HiringRequest,
                          on_delete=models.CASCADE,
                          related_name='contract')
     start_date     = models.DateField()
@@ -303,8 +328,11 @@ class ReplacementRequest(models.Model):
                          related_name='replacement_requests')
     reason         = models.TextField()
     status         = models.CharField(max_length=20,
-                         choices=STATUS_CHOICES, default='Pending')
-    admin_note     = models.TextField(blank=True)
+                         choices=STATUS_CHOICES,
+                         default='Pending')
+    admin_note     = models.TextField(
+                         blank=True,
+                         help_text="Admin response / new worker assignment details")
     created_at     = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -317,21 +345,29 @@ class ReplacementRequest(models.Model):
 # ─── SALARY PAYMENT ───────────────────────────────────────────────────────────
 class SalaryPayment(models.Model):
     MONTH_CHOICES = [
-        ('January', 'January'), ('February', 'February'),
-        ('March', 'March'),     ('April', 'April'),
-        ('May', 'May'),         ('June', 'June'),
-        ('July', 'July'),       ('August', 'August'),
-        ('September', 'September'), ('October', 'October'),
-        ('November', 'November'), ('December', 'December'),
+        ('January',   'January'),
+        ('February',  'February'),
+        ('March',     'March'),
+        ('April',     'April'),
+        ('May',       'May'),
+        ('June',      'June'),
+        ('July',      'July'),
+        ('August',    'August'),
+        ('September', 'September'),
+        ('October',   'October'),
+        ('November',  'November'),
+        ('December',  'December'),
     ]
 
-    hiring_request = models.ForeignKey(HiringRequest,
+    hiring_request = models.ForeignKey(
+                         HiringRequest,
                          on_delete=models.CASCADE,
                          related_name='salary_payments')
     month          = models.CharField(max_length=20,
                          choices=MONTH_CHOICES)
     year           = models.PositiveIntegerField()
-    amount         = models.PositiveIntegerField()
+    amount         = models.PositiveIntegerField(
+                         help_text="Amount paid in BDT")
     paid_on        = models.DateField()
     note           = models.TextField(blank=True)
     created_at     = models.DateTimeField(auto_now_add=True)
