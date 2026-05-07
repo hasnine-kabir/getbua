@@ -353,18 +353,20 @@ def hire_worker(request, worker_id):
         )
         return redirect('worker_detail', pk=worker_id)
 
-    if request.method == 'POST':
-        hire_type       = request.POST.get('hire_type', 'Full Time')
-        message         = request.POST.get('message', '')
-        proposed_salary = request.POST.get('proposed_salary', '').strip()
-        duration_days   = request.POST.get('duration_days', '').strip()
-        start_date      = request.POST.get('start_date', '').strip()
+   if request.method == 'POST':
+        hire_type        = request.POST.get('hire_type', 'Full Time')
+        message          = request.POST.get('message', '')
+        proposed_salary  = request.POST.get('proposed_salary', '').strip()
+        duration_days    = request.POST.get('duration_days', '').strip()
+        start_date       = request.POST.get('start_date', '').strip()
+        delivery_address = request.POST.get('delivery_address', '').strip()
 
         hire = HiringRequest(
             user=request.user,
             worker=worker,
             hire_type=hire_type,
-            message=message
+            message=message,
+            delivery_address=delivery_address
         )
         if proposed_salary:
             try:
@@ -377,12 +379,16 @@ def hire_worker(request, worker_id):
             except ValueError:
                 pass
         if start_date:
-            hire.start_date = start_date
-
+            try:
+                hire.start_date = start_date
+            except Exception:
+                pass
         hire.save()
+
         messages.success(
             request,
-            f"✅ Hiring request for {worker.name} submitted!"
+            f"✅ Hiring request for {worker.name} submitted! "
+            "Admin will review shortly."
         )
         return redirect('my_hires')
 
