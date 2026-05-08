@@ -6,15 +6,12 @@
   <div class="col-md-6">
     <div class="form-card">
 
-      <!-- Header -->
       <div class="text-center mb-4">
         <div style="width:64px;height:64px;border-radius:16px;
-                    background:linear-gradient(135deg,#dc3545,#c0392b);
+                    background:linear-gradient(135deg,#4A90E2,#2C5AA0);
                     display:flex;align-items:center;
                     justify-content:center;margin:0 auto 16px;
-                    font-size:1.8rem;">
-          👤
-        </div>
+                    font-size:1.8rem;">👤</div>
         <h2 class="fw-bold mb-1">Create Your Account</h2>
         <p class="text-muted small">
           Join GetBua and find trusted domestic workers
@@ -89,36 +86,38 @@
           {% endif %}
         </div>
 
+        <!-- Address -->
+        <div class="mb-3">
+          <label class="form-label">
+            <i class="bi bi-geo-alt-fill me-1"
+               style="color:#4A90E2;"></i>
+            Home Address <span style="color:#dc3545;">*</span>
+          </label>
+          {{ form.address }}
+          <div style="color:#718096;font-size:0.78rem;margin-top:4px;">
+            <i class="bi bi-info-circle me-1"></i>
+            Workers will be sent to this address by default
+          </div>
+          {% if form.address.errors %}
+            <div style="color:#dc3545;font-size:0.8rem;margin-top:4px;">
+              {{ form.address.errors|join:", " }}
+            </div>
+          {% endif %}
+        </div>
+
         <!-- Birthday -->
         <div class="mb-3">
           <label class="form-label">
             Birthday <span style="color:#dc3545;">*</span>
           </label>
           {{ form.birthday }}
-          <div class="form-text" style="color:#718096;font-size:0.8rem;">
-            <i class="bi bi-info-circle me-1"></i>
-            Required for password recovery — keep this safe
+          <div style="color:#718096;font-size:0.78rem;margin-top:4px;">
+            <i class="bi bi-shield-lock me-1"></i>
+            Used for password recovery — keep this private
           </div>
           {% if form.birthday.errors %}
             <div style="color:#dc3545;font-size:0.8rem;margin-top:4px;">
               {{ form.birthday.errors|join:", " }}
-            </div>
-          {% endif %}
-        </div>
-
-        <!-- Address -->
-        <div class="mb-3">
-          <label class="form-label">
-            Home Address <span style="color:#dc3545;">*</span>
-          </label>
-          {{ form.address }}
-          <div style="color:#718096;font-size:0.78rem;margin-top:4px;">
-            <i class="bi bi-geo-alt me-1"></i>
-            Workers will be sent to this address by default
-          </div>
-          {% if form.address.errors %}
-            <div style="color:#dc3545;font-size:0.8rem;margin-top:4px;">
-              {{ form.address.errors|join:", " }}
             </div>
           {% endif %}
         </div>
@@ -149,22 +148,17 @@
           {% endif %}
         </div>
 
-        <!-- Submit -->
         <button type="submit"
                 class="btn btn-primary w-100 fw-bold py-2 mb-3">
           <i class="bi bi-person-check me-2"></i>Create Account
         </button>
-
       </form>
 
       <div class="divider"></div>
-
       <p class="text-center mb-0 small">
         Already have an account?
         <a href="{% url 'login' %}"
-           style="color:#4A90E2;font-weight:600;">
-          Login here
-        </a>
+           style="color:#4A90E2;font-weight:600;">Login here</a>
       </p>
 
     </div>

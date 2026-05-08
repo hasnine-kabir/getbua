@@ -11,14 +11,11 @@ class RegisterForm(UserCreationForm):
     phone      = forms.CharField(max_length=15, required=True)
     birthday   = forms.DateField(
                      required=True,
-                     widget=forms.DateInput(attrs={'type': 'date'}),
-                     help_text="Required for password recovery")
-    # FIX 1: Add address to registration
+                     widget=forms.DateInput(attrs={'type': 'date'}))
     address    = forms.CharField(
-                     max_length=255,
+                     max_length=300,
                      required=True,
-                     widget=forms.TextInput(),
-                     help_text="Your home address — worker will be sent here")
+                     widget=forms.TextInput())
 
     class Meta:
         model  = User
@@ -36,7 +33,7 @@ class RegisterForm(UserCreationForm):
         self.fields['last_name'].widget.attrs['placeholder']  = 'Your last name'
         self.fields['email'].widget.attrs['placeholder']      = 'your@email.com'
         self.fields['phone'].widget.attrs['placeholder']      = '01XXXXXXXXX'
-        self.fields['address'].widget.attrs['placeholder']    = 'e.g. Flat 4B, House 12, Road 5, Mirpur, Dhaka'
+        self.fields['address'].widget.attrs['placeholder']    = 'Flat/House, Road, Area, City'
         self.fields['password1'].widget.attrs['placeholder']  = 'Create password'
         self.fields['password2'].widget.attrs['placeholder']  = 'Confirm password'
         self.fields['username'].help_text  = None
@@ -44,7 +41,7 @@ class RegisterForm(UserCreationForm):
         self.fields['password2'].help_text = None
 
     def save(self, commit=True):
-        user = super().save(commit=False)
+        user            = super().save(commit=False)
         user.email      = self.cleaned_data['email']
         user.first_name = self.cleaned_data['first_name']
         user.last_name  = self.cleaned_data['last_name']
@@ -61,54 +58,43 @@ class LoginForm(forms.Form):
     username = forms.CharField(
         max_length=150,
         widget=forms.TextInput(attrs={
-            'class': 'form-control',
+            'class':       'form-control',
             'placeholder': 'Enter your username',
-            'autocomplete': 'off'
+            'autocomplete':'off'
         })
     )
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={
-            'class': 'form-control',
+            'class':       'form-control',
             'placeholder': 'Enter your password'
         })
     )
 
 
 class ProfileEditForm(forms.ModelForm):
-    first_name = forms.CharField(
-        max_length=50,
+    first_name = forms.CharField(max_length=50,
         widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'First name'
-        })
-    )
-    last_name  = forms.CharField(
-        max_length=50,
+            'class': 'form-control', 'placeholder': 'First name'}))
+    last_name  = forms.CharField(max_length=50,
         widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Last name'
-        })
-    )
+            'class': 'form-control', 'placeholder': 'Last name'}))
     email      = forms.EmailField(
         widget=forms.EmailInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'your@email.com'
-        })
-    )
+            'class': 'form-control', 'placeholder': 'your@email.com'}))
 
     class Meta:
         model  = UserProfile
         fields = ['phone', 'address', 'bio']
         widgets = {
             'phone':   forms.TextInput(attrs={
-                           'class': 'form-control',
+                           'class':       'form-control',
                            'placeholder': '01XXXXXXXXX'}),
             'address': forms.TextInput(attrs={
-                           'class': 'form-control',
-                           'placeholder': 'e.g. Flat 4B, House 12, Road 5, Mirpur, Dhaka'}),
+                           'class':       'form-control',
+                           'placeholder': 'Flat/House, Road, Area, City'}),
             'bio':     forms.Textarea(attrs={
-                           'class': 'form-control',
-                           'rows': 3,
+                           'class':   'form-control',
+                           'rows':    3,
                            'placeholder': 'Tell workers about your family...'}),
         }
 
@@ -116,36 +102,21 @@ class ProfileEditForm(forms.ModelForm):
 class PasswordResetForm(forms.Form):
     email    = forms.EmailField(
         widget=forms.EmailInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'your@email.com'
-        })
-    )
+            'class': 'form-control', 'placeholder': 'your@email.com'}))
     birthday = forms.DateField(
         widget=forms.DateInput(attrs={
-            'class': 'form-control',
-            'type': 'date'
-        }),
-        help_text="Enter the birthday you registered with"
-    )
-    new_password1 = forms.CharField(
-        label='New Password',
+            'class': 'form-control', 'type': 'date'}))
+    new_password1 = forms.CharField(label='New Password',
         widget=forms.PasswordInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Enter new password'
-        })
-    )
-    new_password2 = forms.CharField(
-        label='Confirm New Password',
+            'class': 'form-control', 'placeholder': 'Enter new password'}))
+    new_password2 = forms.CharField(label='Confirm New Password',
         widget=forms.PasswordInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Confirm new password'
-        })
-    )
+            'class': 'form-control', 'placeholder': 'Confirm new password'}))
 
     def clean(self):
         cleaned = super().clean()
-        p1 = cleaned.get('new_password1')
-        p2 = cleaned.get('new_password2')
+        p1      = cleaned.get('new_password1')
+        p2      = cleaned.get('new_password2')
         if p1 and p2 and p1 != p2:
             raise forms.ValidationError("Passwords do not match.")
         if p1 and len(p1) < 8:

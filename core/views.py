@@ -5,11 +5,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.shortcuts import render
-from django.contrib import messages
-from django.contrib.auth import get_user_model
-
-User = get_user_model()
 from .forms import (RegisterForm, LoginForm,
                     ProfileEditForm, PasswordResetForm)
 from .models import (Worker, HiringRequest, Contract,
@@ -43,8 +38,8 @@ def register_view(request):
             messages.error(request, "Please fix the errors below.")
     else:
         form = RegisterForm()
-    return render(request, 'registration/register.html',
-                  {'form': form})
+    return render(request,
+                  'registration/register.html', {'form': form})
 
 
 # ─── LOGIN ────────────────────────────────────────────────────────────────────
@@ -72,8 +67,8 @@ def login_view(request):
                                "Invalid username or password.")
     else:
         form = LoginForm()
-    return render(request, 'registration/login.html',
-                  {'form': form})
+    return render(request,
+                  'registration/login.html', {'form': form})
 
 
 # ─── LOGOUT ───────────────────────────────────────────────────────────────────
@@ -83,7 +78,7 @@ def logout_view(request):
     return redirect('home')
 
 
-# ─── CUSTOM PASSWORD RESET (email + birthday) ─────────────────────────────────
+# ─── CUSTOM PASSWORD RESET ────────────────────────────────────────────────────
 def custom_password_reset(request):
     if request.user.is_authenticated:
         return redirect('home')
@@ -95,76 +90,52 @@ def custom_password_reset(request):
             birthday = form.cleaned_data['birthday']
             new_pass = form.cleaned_data['new_password1']
 
-            # Find user by email
             try:
-                from django.contrib.auth.models import User
-                user = User.objects.get(email=email)
-            except User.DoesNotExist:
-                messages.error(
-                    request,
-                    "No account found with that email address."
-                )
-                return render(
-                    request,
+                from django.contrib.auth.models import User as AuthUser
+                user = AuthUser.objects.get(email=email)
+            except AuthUser.DoesNotExist:
+                messages.error(request,
+                    "No account found with that email address.")
+                return render(request,
                     'registration/password_reset_custom.html',
-                    {'form': form}
-                )
+                    {'form': form})
 
-            # Verify birthday matches
             try:
                 profile = user.profile
                 if not profile.birthday:
-                    messages.error(
-                        request,
+                    messages.error(request,
                         "This account has no birthday on record. "
-                        "Please contact admin."
-                    )
-                    return render(
-                        request,
+                        "Please contact admin.")
+                    return render(request,
                         'registration/password_reset_custom.html',
-                        {'form': form}
-                    )
-
+                        {'form': form})
                 if profile.birthday != birthday:
-                    messages.error(
-                        request,
-                        "Email and birthday do not match our records. "
-                        "Please try again."
-                    )
-                    return render(
-                        request,
+                    messages.error(request,
+                        "Email and birthday do not match. "
+                        "Please try again.")
+                    return render(request,
                         'registration/password_reset_custom.html',
-                        {'form': form}
-                    )
+                        {'form': form})
             except Exception:
-                messages.error(
-                    request,
-                    "Could not verify your identity. Please contact admin."
-                )
-                return render(
-                    request,
+                messages.error(request,
+                    "Could not verify your identity. "
+                    "Please contact admin.")
+                return render(request,
                     'registration/password_reset_custom.html',
-                    {'form': form}
-                )
+                    {'form': form})
 
-            # All checks passed — reset password
             user.set_password(new_pass)
             user.save()
-            messages.success(
-                request,
+            messages.success(request,
                 "✅ Password reset successfully! "
-                "You can now login with your new password."
-            )
+                "Login with your new password.")
             return redirect('login')
-
     else:
         form = PasswordResetForm()
 
-    return render(
-        request,
-        'registration/password_reset_custom.html',
-        {'form': form}
-    )
+    return render(request,
+                  'registration/password_reset_custom.html',
+                  {'form': form})
 
 
 # ─── PROFILE ──────────────────────────────────────────────────────────────────
@@ -188,13 +159,11 @@ def profile_edit(request):
         form = ProfileEditForm(request.POST, instance=profile)
         if form.is_valid():
             form.save()
-            # Update User model fields
             request.user.first_name = form.cleaned_data['first_name']
             request.user.last_name  = form.cleaned_data['last_name']
             request.user.email      = form.cleaned_data['email']
             request.user.save()
-            messages.success(request,
-                             "✅ Profile updated successfully!")
+            messages.success(request, "✅ Profile updated!")
             return redirect('profile')
         else:
             messages.error(request, "Please fix the errors below.")
@@ -207,26 +176,18 @@ def profile_edit(request):
                 'email':      request.user.email,
             }
         )
-    return render(request, 'registration/profile_edit.html',
-                  {'form': form})
+    return render(request,
+                  'registration/profile_edit.html', {'form': form})
 
 
-# ─── TRAINING PAGE ────────────────────────────────────────────────────────────
+# ─── TRAINING ─────────────────────────────────────────────────────────────────
 def training_page(request):
     return render(request, 'training.html')
 
 
 # ─── WORKER LIST ──────────────────────────────────────────────────────────────
 def worker_list(request):
-    workers  = Worker.objects.filter(
-                   is_verified=True,
-                   accepts_short_term=False
-               ) | Worker.objects.filter(
-                   is_verified=True,
-                   accepts_short_term=True
-               )
     workers  = Worker.objects.filter(is_verified=True)
-
     q        = request.GET.get('q',            '').strip()
     location = request.GET.get('location',     '').strip()
     skill    = request.GET.get('skill',        '').strip()
@@ -236,8 +197,8 @@ def worker_list(request):
 
     if q:
         workers = workers.filter(
-            Q(name__icontains=q)     |
-            Q(skills__icontains=q)   |
+            Q(name__icontains=q) |
+            Q(skills__icontains=q) |
             Q(location__icontains=q)
         )
     if location:
@@ -258,8 +219,7 @@ def worker_list(request):
         workers = workers.filter(availability=avail)
 
     paginator   = Paginator(workers, 9)
-    page_number = request.GET.get('page')
-    page_obj    = paginator.get_page(page_number)
+    page_obj    = paginator.get_page(request.GET.get('page'))
 
     return render(request, 'workers/list.html', {
         'workers':          page_obj,
@@ -279,12 +239,10 @@ def worker_list(request):
 
 # ─── SHORT TERM LIST ──────────────────────────────────────────────────────────
 def short_term_list(request):
-    workers = Worker.objects.filter(
-        is_verified=True,
-        accepts_short_term=True,
-        availability='Available'
-    )
-
+    workers  = Worker.objects.filter(
+                   is_verified=True,
+                   accepts_short_term=True,
+                   availability='Available')
     q        = request.GET.get('q',        '').strip()
     location = request.GET.get('location', '').strip()
     skill    = request.GET.get('skill',    '').strip()
@@ -300,8 +258,8 @@ def short_term_list(request):
     if skill:
         workers = workers.filter(skills=skill)
 
-    paginator   = Paginator(workers, 9)
-    page_obj    = paginator.get_page(request.GET.get('page'))
+    paginator = Paginator(workers, 9)
+    page_obj  = paginator.get_page(request.GET.get('page'))
 
     return render(request, 'workers/short_term_list.html', {
         'workers':          page_obj,
@@ -340,26 +298,29 @@ def hire_worker(request, worker_id):
 
     if HiringRequest.objects.filter(
             user=request.user, worker=worker).exists():
-        messages.warning(
-            request,
-            f"You already have a request for {worker.name}."
-        )
+        messages.warning(request,
+            f"You already have a request for {worker.name}.")
         return redirect('worker_detail', pk=worker_id)
 
     if worker.availability != 'Available':
-        messages.error(
-            request,
-            f"{worker.name} is currently not available."
-        )
+        messages.error(request,
+            f"{worker.name} is currently not available.")
         return redirect('worker_detail', pk=worker_id)
 
-   if request.method == 'POST':
+    if request.method == 'POST':
         hire_type        = request.POST.get('hire_type', 'Full Time')
         message          = request.POST.get('message', '')
         proposed_salary  = request.POST.get('proposed_salary', '').strip()
         duration_days    = request.POST.get('duration_days', '').strip()
         start_date       = request.POST.get('start_date', '').strip()
         delivery_address = request.POST.get('delivery_address', '').strip()
+
+        if not delivery_address:
+            messages.error(request,
+                "Please provide a delivery address.")
+            return render(request,
+                          'hiring/hire_confirm.html',
+                          {'worker': worker})
 
         hire = HiringRequest(
             user=request.user,
@@ -383,13 +344,11 @@ def hire_worker(request, worker_id):
                 hire.start_date = start_date
             except Exception:
                 pass
-        hire.save()
 
-        messages.success(
-            request,
+        hire.save()
+        messages.success(request,
             f"✅ Hiring request for {worker.name} submitted! "
-            "Admin will review shortly."
-        )
+            "Admin will review shortly.")
         return redirect('my_hires')
 
     return render(request, 'hiring/hire_confirm.html',
@@ -415,8 +374,7 @@ def view_contract(request, hire_id):
                                  user=request.user, status='Approved')
     contract = get_object_or_404(Contract, hiring_request=hire)
     return render(request, 'hiring/contract.html', {
-        'hire':     hire,
-        'contract': contract,
+        'hire': hire, 'contract': contract,
     })
 
 
@@ -442,7 +400,7 @@ def submit_rating(request, hire_id):
         )
         hire.worker.update_rating()
         messages.success(request,
-                         f"⭐ Review for {hire.worker.name} saved!")
+            f"⭐ Review for {hire.worker.name} saved!")
         return redirect('my_hires')
 
     return render(request, 'hiring/rate.html', {'hire': hire})
@@ -455,7 +413,7 @@ def request_replacement(request, hire_id):
                              user=request.user, status='Approved')
     if hire.replacement_requests.filter(status='Pending').exists():
         messages.warning(request,
-                         "You already have a pending replacement.")
+            "You already have a pending replacement.")
         return redirect('my_hires')
 
     if request.method == 'POST':
@@ -469,7 +427,8 @@ def request_replacement(request, hire_id):
             hiring_request=hire,
             reason=reason
         )
-        messages.success(request, "🔄 Replacement request submitted!")
+        messages.success(request,
+            "🔄 Replacement request submitted!")
         return redirect('my_hires')
 
     return render(request, 'hiring/replace.html', {'hire': hire})
@@ -530,7 +489,7 @@ def approve_hire(request, hire_id):
             salary_agreed=agreed,
         )
     messages.success(request,
-                     f"✅ Hire approved for {hire.worker.name}.")
+        f"✅ Hire approved for {hire.worker.name}.")
     return redirect('admin_dashboard')
 
 
@@ -543,7 +502,7 @@ def reject_hire(request, hire_id):
     hire.status = 'Rejected'
     hire.save()
     messages.warning(request,
-                     f"❌ Hire for {hire.worker.name} rejected.")
+        f"❌ Hire for {hire.worker.name} rejected.")
     return redirect('admin_dashboard')
 
 
@@ -554,8 +513,8 @@ def resolve_replacement(request, rep_id):
         return redirect('home')
     rep = get_object_or_404(ReplacementRequest, pk=rep_id)
     if request.method == 'POST':
-        old_hire                 = rep.hiring_request
-        old_hire.status          = 'Cancelled'
+        old_hire                  = rep.hiring_request
+        old_hire.status           = 'Cancelled'
         old_hire.save()
         old_hire.worker.availability = 'Available'
         old_hire.worker.save(update_fields=['availability'])
@@ -574,15 +533,16 @@ def add_salary_payment(request, hire_id):
     hire = get_object_or_404(HiringRequest, pk=hire_id,
                              user=request.user, status='Approved')
     if request.method == 'POST':
-        month  = request.POST.get('month')
-        year   = request.POST.get('year')
-        amount = request.POST.get('amount')
-        paid_on= request.POST.get('paid_on')
-        note   = request.POST.get('note', '')
+        month   = request.POST.get('month')
+        year    = request.POST.get('year')
+        amount  = request.POST.get('amount')
+        paid_on = request.POST.get('paid_on')
+        note    = request.POST.get('note', '')
         if SalaryPayment.objects.filter(
-                hiring_request=hire, month=month, year=year).exists():
+                hiring_request=hire,
+                month=month, year=year).exists():
             messages.warning(request,
-                             f"Salary for {month} {year} already recorded.")
+                f"Salary for {month} {year} already recorded.")
             return redirect('salary_history', hire_id=hire_id)
         try:
             SalaryPayment.objects.create(
@@ -591,7 +551,7 @@ def add_salary_payment(request, hire_id):
                 paid_on=paid_on, note=note
             )
             messages.success(request,
-                             f"✅ Payment of ৳{amount} recorded.")
+                f"✅ Payment of ৳{amount} recorded.")
         except Exception as e:
             messages.error(request, f"Error: {e}")
         return redirect('salary_history', hire_id=hire_id)
@@ -604,7 +564,8 @@ def salary_history(request, hire_id):
     hire     = get_object_or_404(HiringRequest, pk=hire_id,
                                  user=request.user)
     payments = SalaryPayment.objects.filter(
-                   hiring_request=hire).order_by('-year', '-created_at')
+                   hiring_request=hire).order_by(
+                   '-year', '-created_at')
     total    = sum(p.amount for p in payments)
     return render(request, 'hiring/salary_history.html', {
         'hire': hire, 'payments': payments, 'total': total,
