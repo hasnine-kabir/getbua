@@ -191,6 +191,7 @@ def worker_list(request):
     workers  = Worker.objects.filter(is_verified=True)
     q        = request.GET.get('q',            '').strip()
     location = request.GET.get('location',     '').strip()
+    area     = request.GET.get('area',         '').strip()
     skill    = request.GET.get('skill',        '').strip()
     min_sal  = request.GET.get('min_salary',   '').strip()
     max_sal  = request.GET.get('max_salary',   '').strip()
@@ -198,12 +199,15 @@ def worker_list(request):
 
     if q:
         workers = workers.filter(
-            Q(name__icontains=q) |
-            Q(skills__icontains=q) |
-            Q(location__icontains=q)
+            Q(name__icontains=q)     |
+            Q(skills__icontains=q)   |
+            Q(location__icontains=q) |
+            Q(area__icontains=q)
         )
     if location:
         workers = workers.filter(location=location)
+    if area:
+        workers = workers.filter(area=area)
     if skill:
         workers = workers.filter(skills=skill)
     if min_sal:
@@ -222,15 +226,25 @@ def worker_list(request):
     paginator   = Paginator(workers, 9)
     page_obj    = paginator.get_page(request.GET.get('page'))
 
+    # Build flat area list for selected city
+    all_areas = []
+    for group_name, group_choices in Worker.AREA_CHOICES:
+        for val, label in group_choices:
+            city = group_name.replace(' Areas', '')
+            all_areas.append((val, label, city))
+
     return render(request, 'workers/list.html', {
         'workers':          page_obj,
         'page_obj':         page_obj,
         'total_count':      paginator.count,
         'location_choices': Worker.LOCATION_CHOICES,
+        'area_choices':     Worker.AREA_CHOICES,
+        'all_areas':        all_areas,
         'skill_choices':    Worker.SKILL_CHOICES,
         'avail_choices':    Worker.AVAILABILITY_CHOICES,
         'q':                q,
         'location':         location,
+        'area':             area,
         'skill':            skill,
         'min_salary':       min_sal,
         'max_salary':       max_sal,
@@ -246,16 +260,20 @@ def short_term_list(request):
                    availability='Available')
     q        = request.GET.get('q',        '').strip()
     location = request.GET.get('location', '').strip()
+    area     = request.GET.get('area',     '').strip()
     skill    = request.GET.get('skill',    '').strip()
 
     if q:
         workers = workers.filter(
-            Q(name__icontains=q) |
-            Q(skills__icontains=q) |
-            Q(location__icontains=q)
+            Q(name__icontains=q)     |
+            Q(skills__icontains=q)   |
+            Q(location__icontains=q) |
+            Q(area__icontains=q)
         )
     if location:
         workers = workers.filter(location=location)
+    if area:
+        workers = workers.filter(area=area)
     if skill:
         workers = workers.filter(skills=skill)
 
@@ -267,9 +285,11 @@ def short_term_list(request):
         'page_obj':         page_obj,
         'total_count':      paginator.count,
         'location_choices': Worker.LOCATION_CHOICES,
+        'area_choices':     Worker.AREA_CHOICES,
         'skill_choices':    Worker.SKILL_CHOICES,
         'q':                q,
         'location':         location,
+        'area':             area,
         'skill':            skill,
     })
 

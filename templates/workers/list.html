@@ -3,226 +3,375 @@
 
 {% block content %}
 
-<!-- Page Header -->
 <div class="d-flex justify-content-between align-items-center mb-4">
   <div>
     <h2 class="fw-bold mb-0">
-      <i class="bi bi-people-fill text-danger"></i> Browse Workers
+      <i class="bi bi-people-fill me-2"
+         style="color:#4A90E2;"></i>Browse Workers
     </h2>
     <p class="text-muted mb-0">
-      {{ workers.count }} verified worker{{ workers.count|pluralize }} found
+      {{ total_count }} verified worker{{ total_count|pluralize }} found
     </p>
   </div>
 </div>
 
-<!-- ── FILTER CARD ────────────────────────────────────────────── -->
-<div class="card border-0 shadow-sm mb-4">
-  <div class="card-body">
-    <form method="GET" action="{% url 'worker_list' %}">
-      <div class="row g-2 align-items-end">
+<!-- FILTER CARD -->
+<div class="filter-card mb-4">
+  <form method="GET" id="filterForm">
+    <div class="row g-2 align-items-end">
 
-        <!-- Search Box -->
-        <div class="col-md-3">
-          <label class="form-label fw-semibold small text-muted">
-            <i class="bi bi-search"></i> Search
-          </label>
-          <input type="text" name="q" class="form-control"
-                 placeholder="Name, skill, city..."
-                 value="{{ q }}">
-        </div>
-
-        <!-- Location -->
-        <div class="col-md-2">
-          <label class="form-label fw-semibold small text-muted">
-            <i class="bi bi-geo-alt"></i> Location
-          </label>
-          <select name="location" class="form-select">
-            <option value="">All Cities</option>
-            {% for val, label in location_choices %}
-              <option value="{{ val }}"
-                {% if location == val %}selected{% endif %}>
-                {{ label }}
-              </option>
-            {% endfor %}
-          </select>
-        </div>
-
-        <!-- Skill -->
-        <div class="col-md-2">
-          <label class="form-label fw-semibold small text-muted">
-            <i class="bi bi-tools"></i> Skill
-          </label>
-          <select name="skill" class="form-select">
-            <option value="">All Skills</option>
-            {% for val, label in skill_choices %}
-              <option value="{{ val }}"
-                {% if skill == val %}selected{% endif %}>
-                {{ label }}
-              </option>
-            {% endfor %}
-          </select>
-        </div>
-
-        <!-- Min Salary -->
-        <div class="col-md-2">
-          <label class="form-label fw-semibold small text-muted">
-            <i class="bi bi-currency-exchange"></i> Min Salary (৳)
-          </label>
-          <input type="number" name="min_salary" class="form-control"
-                 placeholder="e.g. 3000" value="{{ min_salary }}">
-        </div>
-
-        <!-- Max Salary -->
-        <div class="col-md-1">
-          <label class="form-label fw-semibold small text-muted">Max (৳)</label>
-          <input type="number" name="max_salary" class="form-control"
-                 placeholder="e.g. 8000" value="{{ max_salary }}">
-        </div>
-
-        <!-- Availability -->
-        <div class="col-md-1">
-          <label class="form-label fw-semibold small text-muted">Status</label>
-          <select name="availability" class="form-select">
-            <option value="">All</option>
-            {% for val, label in avail_choices %}
-              <option value="{{ val }}"
-                {% if availability == val %}selected{% endif %}>
-                {{ label }}
-              </option>
-            {% endfor %}
-          </select>
-        </div>
-
-        <!-- Buttons -->
-        <div class="col-md-1 d-flex gap-1">
-          <button type="submit" class="btn btn-danger w-100">
-            <i class="bi bi-funnel-fill"></i>
-          </button>
-          <a href="{% url 'worker_list' %}" class="btn btn-outline-secondary w-100">
-            <i class="bi bi-x-lg"></i>
-          </a>
-        </div>
-
+      <!-- Search -->
+      <div class="col-md-3">
+        <label class="form-label">
+          <i class="bi bi-search me-1"></i>Search
+        </label>
+        <input type="text" name="q" class="form-control"
+               placeholder="Name, skill, area..."
+               value="{{ q }}">
       </div>
-    </form>
-  </div>
+
+      <!-- City -->
+      <div class="col-md-2">
+        <label class="form-label">City</label>
+        <select name="location" class="form-select"
+                id="citySelect">
+          <option value="">All Cities</option>
+          {% for val, label in location_choices %}
+            <option value="{{ val }}"
+              {% if location == val %}selected{% endif %}>
+              {{ label }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Area / Thana -->
+      <div class="col-md-2">
+        <label class="form-label">Area / Thana</label>
+        <select name="area" class="form-select" id="areaSelect">
+          <option value="">All Areas</option>
+          {% for group_name, group_choices in area_choices %}
+          <optgroup label="{{ group_name }}"
+                    class="area-group"
+                    data-city="{{ group_name|cut:' Areas' }}">
+            {% for val, label in group_choices %}
+            <option value="{{ val }}"
+              {% if area == val %}selected{% endif %}>
+              {{ label }}
+            </option>
+            {% endfor %}
+          </optgroup>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Skill -->
+      <div class="col-md-2">
+        <label class="form-label">Skill</label>
+        <select name="skill" class="form-select">
+          <option value="">All Skills</option>
+          {% for val, label in skill_choices %}
+            <option value="{{ val }}"
+              {% if skill == val %}selected{% endif %}>
+              {{ label }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Salary Range -->
+      <div class="col-md-1">
+        <label class="form-label">Min ৳</label>
+        <input type="number" name="min_salary"
+               class="form-control"
+               placeholder="3000"
+               value="{{ min_salary }}">
+      </div>
+      <div class="col-md-1">
+        <label class="form-label">Max ৳</label>
+        <input type="number" name="max_salary"
+               class="form-control"
+               placeholder="15000"
+               value="{{ max_salary }}">
+      </div>
+
+      <!-- Buttons -->
+      <div class="col-md-1 d-flex gap-1">
+        <button type="submit"
+                class="btn btn-primary w-100"
+                title="Search">
+          <i class="bi bi-search"></i>
+        </button>
+        <a href="{% url 'worker_list' %}"
+           class="btn w-100"
+           style="background:#F5F7FA;
+                  border:1px solid #E2E8F0;"
+           title="Clear">
+          <i class="bi bi-x-lg"></i>
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Active Filters Display -->
+    {% if q or location or area or skill or min_salary or max_salary %}
+    <div class="mt-3 d-flex flex-wrap gap-2 align-items-center">
+      <small class="text-muted fw-semibold">Active filters:</small>
+      {% if q %}
+      <span class="badge"
+            style="background:#EFF6FF;color:#2C5AA0;
+                   border:1px solid #4A90E2;">
+        Search: {{ q }}
+      </span>
+      {% endif %}
+      {% if location %}
+      <span class="badge"
+            style="background:#EFF6FF;color:#2C5AA0;
+                   border:1px solid #4A90E2;">
+        City: {{ location }}
+      </span>
+      {% endif %}
+      {% if area %}
+      <span class="badge"
+            style="background:#EFF6FF;color:#2C5AA0;
+                   border:1px solid #4A90E2;">
+        Area: {{ area }}
+      </span>
+      {% endif %}
+      {% if skill %}
+      <span class="badge"
+            style="background:#EFF6FF;color:#2C5AA0;
+                   border:1px solid #4A90E2;">
+        Skill: {{ skill }}
+      </span>
+      {% endif %}
+    </div>
+    {% endif %}
+
+  </form>
 </div>
 
-<!-- ── WORKER CARDS ───────────────────────────────────────────── -->
+<!-- WORKER CARDS -->
 {% if workers %}
-  <div class="row row-cols-1 row-cols-md-3 g-4">
-    {% for worker in workers %}
-    <div class="col">
-      <div class="card border-0 shadow-sm h-100 worker-card">
-        <div class="card-body">
+<div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+  {% for worker in workers %}
+  <div class="col">
+    <div class="card worker-card h-100 p-4">
 
-          <!-- Top: Photo + Name + Badge -->
-          <div class="d-flex align-items-center mb-3">
-            {% if worker.photo %}
-              <img src="{{ worker.photo.url }}" alt="{{ worker.name }}">
+      <!-- Avatar + Name -->
+      <div class="d-flex align-items-center mb-3">
+        <div class="worker-avatar-placeholder me-3">
+          {{ worker.name|first|upper }}
+        </div>
+        <div>
+          <h6 class="fw-bold mb-0">{{ worker.name }}</h6>
+          <small class="text-muted">
+            <i class="bi bi-geo-alt-fill"
+               style="color:#4A90E2;"></i>
+            {% if worker.area %}
+              {{ worker.area }}, {{ worker.location }}
             {% else %}
-              <!-- Fallback Avatar -->
-              <div style="
-                width:70px; height:70px; border-radius:50%;
-                background: linear-gradient(135deg,#dc3545,#c0392b);
-                color:white; font-size:1.6rem; font-weight:bold;
-                display:flex; align-items:center;
-                justify-content:center; flex-shrink:0;">
-                {{ worker.name|first|upper }}
-              </div>
+              {{ worker.location }}
             {% endif %}
-
-            <div class="ms-3">
-              <h5 class="fw-bold mb-0">{{ worker.name }}</h5>
-              <small class="text-muted">
-                <i class="bi bi-geo-alt-fill text-danger"></i>
-                {{ worker.location }}
-              </small><br>
-              {% if worker.is_verified %}
-                <span class="badge bg-success mt-1">
-                  <i class="bi bi-patch-check"></i> Verified
-                </span>
-              {% endif %}
-              <!-- Availability Badge -->
-              {% if worker.availability == 'Available' %}
-                <span class="badge bg-primary ms-1 mt-1">Available</span>
-              {% elif worker.availability == 'Hired' %}
-                <span class="badge bg-warning text-dark ms-1 mt-1">Hired</span>
-              {% else %}
-                <span class="badge bg-secondary ms-1 mt-1">Unavailable</span>
-              {% endif %}
-            </div>
-          </div>
-
-          <!-- Skills & Info -->
-          <div class="mb-2">
-            <span class="badge bg-light text-dark border me-1">
-              <i class="bi bi-tools text-danger"></i> {{ worker.skills }}
-            </span>
-            <span class="badge bg-light text-dark border">
-              <i class="bi bi-briefcase text-danger"></i>
-              {{ worker.experience }} yr{{ worker.experience|pluralize }}
-            </span>
-          </div>
-
-          <!-- Salary -->
-          <p class="mb-2">
-            <i class="bi bi-cash-coin text-success"></i>
-            <strong class="text-success">৳{{ worker.salary }}</strong>
-            <span class="text-muted small">/month</span>
-          </p>
-
-          <!-- Rating Stars -->
-          <div class="star-rating mb-3">
-            {% for _ in worker.star_range %}
-              <i class="bi bi-star-fill"></i>
-            {% endfor %}
-            {% for _ in worker.empty_star_range %}
-              <i class="bi bi-star text-muted"></i>
-            {% endfor %}
-            <small class="text-muted ms-1">
-              {{ worker.avg_rating }}
-              ({{ worker.total_reviews }} review{{ worker.total_reviews|pluralize }})
-            </small>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="d-flex gap-2">
-            <a href="{% url 'worker_detail' worker.pk %}"
-               class="btn btn-outline-danger flex-fill">
-              <i class="bi bi-eye"></i> View Profile
-            </a>
-            {% if user.is_authenticated and worker.availability == 'Available' %}
-              <a href="{% url 'hire_worker' worker.pk %}"
-                 class="btn btn-danger flex-fill">
-                <i class="bi bi-person-check"></i> Hire
-              </a>
-            {% elif not user.is_authenticated %}
-              <a href="{% url 'login' %}?next={% url 'hire_worker' worker.pk %}"
-                 class="btn btn-danger flex-fill">
-                <i class="bi bi-lock"></i> Login to Hire
-              </a>
-            {% endif %}
-          </div>
-
+          </small>
         </div>
       </div>
+
+      <!-- Badges -->
+      <div class="mb-2 d-flex flex-wrap gap-1">
+        {% if worker.is_verified %}
+        <span class="badge-verified">
+          <i class="bi bi-patch-check me-1"></i>Verified
+        </span>
+        {% endif %}
+        {% if worker.availability == 'Available' %}
+        <span class="badge-available">Available</span>
+        {% elif worker.availability == 'Hired' %}
+        <span class="badge-hired">Hired</span>
+        {% else %}
+        <span class="badge"
+              style="background:#E2E8F0;color:#718096;">
+          Unavailable
+        </span>
+        {% endif %}
+        {% if worker.accepts_short_term %}
+        <span class="shortterm-tag">
+          <i class="bi bi-lightning me-1"></i>Short-Term
+        </span>
+        {% endif %}
+      </div>
+
+      <!-- Info -->
+      <p class="small mb-2 text-muted">
+        <i class="bi bi-tools"
+           style="color:#4A90E2;"></i>
+        {{ worker.skills }} ·
+        {{ worker.experience }}yr exp
+      </p>
+
+      <!-- Stars -->
+      <div class="star-rating small mb-3">
+        {% for _ in worker.star_range %}
+          <i class="bi bi-star-fill"></i>
+        {% endfor %}
+        {% for _ in worker.empty_star_range %}
+          <i class="bi bi-star empty"></i>
+        {% endfor %}
+        <span class="text-muted ms-1">
+          {{ worker.avg_rating }} ({{ worker.total_reviews }})
+        </span>
+      </div>
+
+      <!-- Price + Action -->
+      <div class="d-flex justify-content-between
+                  align-items-center mt-auto">
+        <div>
+          <span class="fw-bold"
+                style="color:#27AE60;font-size:1.05rem;">
+            ৳{{ worker.salary }}
+          </span>
+          <span class="text-muted small">/month</span>
+          {% if worker.daily_rate %}
+          <br>
+          <span class="text-muted small"
+                style="color:#8E44AD;">
+            ৳{{ worker.daily_rate }}/day
+          </span>
+          {% endif %}
+        </div>
+        <div class="d-flex gap-1">
+          <a href="{% url 'worker_detail' worker.pk %}"
+             class="btn btn-outline-primary btn-sm">
+            View
+          </a>
+          {% if user.is_authenticated and worker.availability == 'Available' %}
+          <a href="{% url 'hire_worker' worker.pk %}"
+             class="btn btn-primary btn-sm">
+            Hire
+          </a>
+          {% elif not user.is_authenticated %}
+          <a href="{% url 'login' %}?next={% url 'hire_worker' worker.pk %}"
+             class="btn btn-primary btn-sm">
+            Hire
+          </a>
+          {% endif %}
+        </div>
+      </div>
+
     </div>
-    {% endfor %}
   </div>
+  {% endfor %}
+</div>
+
+<!-- PAGINATION -->
+{% if page_obj.has_other_pages %}
+<div class="d-flex justify-content-center mt-3 mb-4">
+  <nav>
+    <ul class="pagination">
+      {% if page_obj.has_previous %}
+      <li class="page-item">
+        <a class="page-link"
+           href="?page={{ page_obj.previous_page_number }}&q={{ q }}&location={{ location }}&area={{ area }}&skill={{ skill }}&min_salary={{ min_salary }}&max_salary={{ max_salary }}&availability={{ availability }}">
+          <i class="bi bi-chevron-left"></i>
+        </a>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <span class="page-link">
+          <i class="bi bi-chevron-left"></i>
+        </span>
+      </li>
+      {% endif %}
+
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <li class="page-item active">
+          <span class="page-link">{{ num }}</span>
+        </li>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <li class="page-item">
+          <a class="page-link"
+             href="?page={{ num }}&q={{ q }}&location={{ location }}&area={{ area }}&skill={{ skill }}&min_salary={{ min_salary }}&max_salary={{ max_salary }}&availability={{ availability }}">
+            {{ num }}
+          </a>
+        </li>
+        {% endif %}
+      {% endfor %}
+
+      {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link"
+           href="?page={{ page_obj.next_page_number }}&q={{ q }}&location={{ location }}&area={{ area }}&skill={{ skill }}&min_salary={{ min_salary }}&max_salary={{ max_salary }}&availability={{ availability }}">
+          <i class="bi bi-chevron-right"></i>
+        </a>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <span class="page-link">
+          <i class="bi bi-chevron-right"></i>
+        </span>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+</div>
+<p class="text-center text-muted small">
+  Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+  · {{ total_count }} workers total
+</p>
+{% endif %}
 
 {% else %}
-  <!-- Empty State -->
-  <div class="text-center py-5">
-    <div style="font-size:4rem; color:#dee2e6;">
-      <i class="bi bi-search"></i>
-    </div>
-    <h4 class="text-muted mt-3">No workers found</h4>
-    <p class="text-muted">Try adjusting your search filters.</p>
-    <a href="{% url 'worker_list' %}" class="btn btn-outline-danger">
-      <i class="bi bi-arrow-counterclockwise"></i> Clear Filters
-    </a>
+<div class="text-center py-5">
+  <div style="font-size:4rem;color:#E2E8F0;">
+    <i class="bi bi-search"></i>
   </div>
+  <h4 class="text-muted mt-3">No workers found</h4>
+  <p class="text-muted">Try adjusting your search filters.</p>
+  <a href="{% url 'worker_list' %}"
+     class="btn btn-outline-primary">
+    <i class="bi bi-arrow-counterclockwise me-1"></i>Clear Filters
+  </a>
+</div>
 {% endif %}
+
+<!-- Dynamic area filter by city -->
+<script>
+const citySelect = document.getElementById('citySelect');
+const areaSelect = document.getElementById('areaSelect');
+const optgroups  = areaSelect.querySelectorAll('optgroup');
+
+function filterAreas() {
+  const selectedCity = citySelect.value;
+  optgroups.forEach(grp => {
+    const grpCity = grp.getAttribute('data-city');
+    if (!selectedCity || grpCity === selectedCity) {
+      grp.style.display = '';
+    } else {
+      grp.style.display = 'none';
+      // Deselect hidden options
+      grp.querySelectorAll('option').forEach(o => {
+        if (o.selected) o.selected = false;
+      });
+    }
+  });
+  // Reset area if city changed
+  if (selectedCity) {
+    const currentArea = areaSelect.value;
+    let found = false;
+    optgroups.forEach(grp => {
+      if (grp.style.display !== 'none') {
+        grp.querySelectorAll('option').forEach(o => {
+          if (o.value === currentArea) found = true;
+        });
+      }
+    });
+    if (!found) areaSelect.value = '';
+  }
+}
+
+citySelect.addEventListener('change', filterAreas);
+filterAreas(); // Run on page load
+</script>
 
 {% endblock %}

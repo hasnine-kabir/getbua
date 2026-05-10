@@ -14,15 +14,14 @@ class UserProfileAdmin(admin.ModelAdmin):
 
 @admin.register(Worker)
 class WorkerAdmin(admin.ModelAdmin):
-    list_display  = [
-        'photo_preview', 'name', 'age', 'location',
-        'skills', 'salary', 'daily_rate',
-        'accepts_short_term', 'availability',
-        'is_verified', 'avg_rating'
-    ]
-    list_filter   = ['location', 'skills', 'availability',
-                     'is_verified', 'accepts_short_term',
-                     'work_type', 'day_off']
+    list_display = [
+    'photo_preview', 'name', 'age', 'location', 'area',
+    'skills', 'salary', 'accepts_short_term',
+    'availability', 'is_verified', 'avg_rating'
+]
+    list_filter = ['location', 'area', 'skills', 'availability',
+               'is_verified', 'accepts_short_term',
+               'work_type', 'day_off']
     search_fields = ['name', 'nid_number', 'phone',
                      'guardian_name', 'guardian_phone']
     list_editable = ['is_verified', 'availability',
@@ -31,40 +30,40 @@ class WorkerAdmin(admin.ModelAdmin):
     readonly_fields = ['avg_rating', 'total_reviews']
 
     fieldsets = (
-        ('Basic Information', {
-            'fields': ('name', 'age', 'phone',
-                       'address', 'photo', 'nid_number')
-        }),
-        ('Work Details', {
-            'fields': ('skills', 'experience',
-                       'salary', 'location')
-        }),
-        ('Short-Term / Daily Hire', {
-            'fields': ('accepts_short_term',
-                       'daily_rate', 'min_days'),
-            'classes': ('collapse',)
-        }),
-        ('Working Schedule', {
-            'fields': ('work_type', 'work_hours',
-                       'day_off', 'extra_notes')
-        }),
-        ('Status', {
-            'fields': ('is_verified', 'availability')
-        }),
-        ('Emergency / Guardian Contact', {
-            'fields': ('guardian_name', 'guardian_phone',
-                       'guardian_relation'),
-            'classes': ('collapse',)
-        }),
-        ('Admin Private Notes', {
-            'fields': ('admin_notes',),
-            'classes': ('collapse',)
-        }),
-        ('Ratings (Auto-calculated)', {
-            'fields': ('avg_rating', 'total_reviews'),
-            'classes': ('collapse',)
-        }),
-    )
+    ('Basic Information', {
+        'fields': ('name', 'age', 'phone',
+                   'address', 'photo', 'nid_number')
+    }),
+    ('Location', {
+        'fields': ('location', 'area'),
+        'description': 'Select city first, then the specific area/thana'
+    }),
+    ('Work Details', {
+        'fields': ('skills', 'experience', 'salary')
+    }),
+    ('Short-Term / Daily Hire', {
+        'fields': ('accepts_short_term', 'daily_rate', 'min_days'),
+        'classes': ('collapse',)
+    }),
+    ('Working Schedule', {
+        'fields': ('work_type', 'work_hours', 'day_off', 'extra_notes')
+    }),
+    ('Status', {
+        'fields': ('is_verified', 'availability')
+    }),
+    ('Emergency / Guardian Contact', {
+        'fields': ('guardian_name', 'guardian_phone', 'guardian_relation'),
+        'classes': ('collapse',)
+    }),
+    ('Admin Private Notes', {
+        'fields': ('admin_notes',),
+        'classes': ('collapse',)
+    }),
+    ('Ratings (Auto-calculated)', {
+        'fields': ('avg_rating', 'total_reviews'),
+        'classes': ('collapse',)
+    }),
+)
 
     def photo_preview(self, obj):
         if obj.photo:

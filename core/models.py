@@ -39,6 +39,95 @@ class Worker(models.Model):
         ('Gazipur',    'Gazipur'),
         ('Sylhet',     'Sylhet'),
     ]
+
+    # ── Area / Thana Choices by City ──────────────────────────────────────────
+    AREA_CHOICES = [
+        # ── Dhaka ─────────────────────────────────────────────────────────────
+        ('Dhaka Areas', (
+            ('Adabor',              'Adabor'),
+            ('Badda',               'Badda'),
+            ('Banani',              'Banani'),
+            ('Bangshal',            'Bangshal'),
+            ('Biman Bandar',        'Biman Bandar (Airport)'),
+            ('Cantonment',          'Cantonment'),
+            ('Chakbazar',           'Chakbazar'),
+            ('Darus Salam',         'Darus Salam'),
+            ('Demra',               'Demra'),
+            ('Dhanmondi',           'Dhanmondi'),
+            ('Gandaria',            'Gandaria'),
+            ('Gulshan',             'Gulshan'),
+            ('Hazaribag',           'Hazaribag'),
+            ('Jatrabari',           'Jatrabari'),
+            ('Kadamtoli',           'Kadamtoli'),
+            ('Kafrul',              'Kafrul'),
+            ('Kalabagan',           'Kalabagan'),
+            ('Kamrangirchar',       'Kamrangirchar'),
+            ('Khilgaon',            'Khilgaon'),
+            ('Khilkhet',            'Khilkhet'),
+            ('Kotwali Dhaka',       'Kotwali'),
+            ('Lalbag',              'Lalbag'),
+            ('Mirpur',              'Mirpur'),
+            ('Mohammadpur',         'Mohammadpur'),
+            ('Motijheel',           'Motijheel'),
+            ('Mugda',               'Mugda'),
+            ('New Market',          'New Market'),
+            ('Pallabi',             'Pallabi'),
+            ('Paltan',              'Paltan'),
+            ('Rampura',             'Rampura'),
+            ('Ramna',               'Ramna'),
+            ('Sabujbag',            'Sabujbag'),
+            ('Shahbag',             'Shahbag'),
+            ('Shyampur',            'Shyampur'),
+            ('Sutrapur',            'Sutrapur'),
+            ('Tejgaon',             'Tejgaon'),
+            ('Tejgaon Industrial',  'Tejgaon Industrial'),
+            ('Turag',               'Turag'),
+            ('Uttara East',         'Uttara East'),
+            ('Uttara West',         'Uttara West'),
+            ('Wari',                'Wari'),
+        )),
+        # ── Chittagong ────────────────────────────────────────────────────────
+        ('Chittagong Areas', (
+            ('Akbar Shah',          'Akbar Shah'),
+            ('Bakalia',             'Bakalia'),
+            ('Bandar',              'Bandar'),
+            ('Bayezid Bostami',     'Bayezid Bostami'),
+            ('Chandgaon',           'Chandgaon'),
+            ('Chawkbazar CTG',      'Chawkbazar'),
+            ('Double Mooring',      'Double Mooring'),
+            ('Halishahar',          'Halishahar'),
+            ('Khulshi',             'Khulshi'),
+            ('Kotwali CTG',         'Kotwali'),
+            ('Pahartali',           'Pahartali'),
+            ('Panchlaish',          'Panchlaish'),
+            ('Patenga',             'Patenga'),
+            ('Sadarghat',           'Sadarghat'),
+            ('Sitakunda',           'Sitakunda'),
+        )),
+        # ── Gazipur ───────────────────────────────────────────────────────────
+        ('Gazipur Areas', (
+            ('Gazipur Sadar',       'Gazipur Sadar (Joydebpur)'),
+            ('Kaliakoir',           'Kaliakoir'),
+            ('Kaliganj Gazipur',    'Kaliganj'),
+            ('Kapasia',             'Kapasia'),
+            ('Konabari',            'Konabari'),
+            ('Boardbazar',          'Boardbazar'),
+            ('Sreepur',             'Sreepur'),
+            ('Tongi',               'Tongi'),
+        )),
+        # ── Sylhet ────────────────────────────────────────────────────────────
+        ('Sylhet Areas', (
+            ('Ambarkhana',          'Ambarkhana'),
+            ('Airport Sylhet',      'Airport Road'),
+            ('Jalalabad',           'Jalalabad'),
+            ('Kotwali Sylhet',      'Kotwali'),
+            ('Moglabazar',          'Moglabazar'),
+            ('Osmani Nagar',        'Osmani Nagar'),
+            ('Shahporan',           'Shahporan'),
+            ('South Surma',         'South Surma'),
+        )),
+    ]
+
     SKILL_CHOICES = [
         ('Cooking',            'Cooking'),
         ('Cleaning',           'Cleaning'),
@@ -89,6 +178,9 @@ class Worker(models.Model):
     age                = models.PositiveIntegerField()
     location           = models.CharField(max_length=50,
                              choices=LOCATION_CHOICES)
+    area               = models.CharField(max_length=50,
+                             blank=True,
+                             help_text="Thana / Area within the city")
     phone              = models.CharField(max_length=15, blank=True)
     address            = models.TextField(blank=True)
     skills             = models.CharField(max_length=100,
@@ -131,7 +223,8 @@ class Worker(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.name} ({self.location})"
+        area_str = f" - {self.area}" if self.area else ""
+        return f"{self.name} ({self.location}{area_str})"
 
     def update_rating(self):
         from django.db.models import Avg
@@ -149,6 +242,11 @@ class Worker(models.Model):
     def empty_star_range(self):
         return range(5 - int(self.avg_rating))
 
+    def get_display_location(self):
+        if self.area:
+            return f"{self.area}, {self.location}"
+        return self.location
+
 
 # ─── HIRING REQUEST ───────────────────────────────────────────────────────────
 class HiringRequest(models.Model):
@@ -163,19 +261,24 @@ class HiringRequest(models.Model):
         ('Short Term', 'Short Term'),
     ]
 
-    user             = models.ForeignKey(User, on_delete=models.CASCADE,
+    user             = models.ForeignKey(User,
+                           on_delete=models.CASCADE,
                            related_name='hiring_requests')
-    worker           = models.ForeignKey(Worker, on_delete=models.CASCADE,
+    worker           = models.ForeignKey(Worker,
+                           on_delete=models.CASCADE,
                            related_name='hiring_requests')
     status           = models.CharField(max_length=20,
-                           choices=STATUS_CHOICES, default='Pending')
+                           choices=STATUS_CHOICES,
+                           default='Pending')
     hire_type        = models.CharField(max_length=20,
                            choices=HIRE_TYPE_CHOICES,
                            default='Full Time')
     message          = models.TextField(blank=True)
-    proposed_salary  = models.PositiveIntegerField(null=True, blank=True)
+    proposed_salary  = models.PositiveIntegerField(
+                           null=True, blank=True)
     delivery_address = models.TextField(blank=True)
-    duration_days    = models.PositiveIntegerField(null=True, blank=True)
+    duration_days    = models.PositiveIntegerField(
+                           null=True, blank=True)
     start_date       = models.DateField(null=True, blank=True)
     created_at       = models.DateTimeField(auto_now_add=True)
     updated_at       = models.DateTimeField(auto_now=True)
@@ -210,28 +313,27 @@ class HiringRequest(models.Model):
 
 # ─── CONTRACT ─────────────────────────────────────────────────────────────────
 class Contract(models.Model):
-    hiring_request = models.OneToOneField(HiringRequest,
-                         on_delete=models.CASCADE,
-                         related_name='contract')
-    start_date     = models.DateField()
-    end_date       = models.DateField(null=True, blank=True)
-    salary_agreed  = models.PositiveIntegerField()
-    # Short-term specific
+    hiring_request    = models.OneToOneField(HiringRequest,
+                            on_delete=models.CASCADE,
+                            related_name='contract')
+    start_date        = models.DateField()
+    end_date          = models.DateField(null=True, blank=True)
+    salary_agreed     = models.PositiveIntegerField(default=0)
     daily_rate_agreed = models.PositiveIntegerField(
                             null=True, blank=True)
-    duration_days  = models.PositiveIntegerField(
-                         null=True, blank=True)
-    total_amount   = models.PositiveIntegerField(
-                         null=True, blank=True)
-    terms          = models.TextField(
-                         default=(
-                             "1. The worker shall report on time every day.\n"
-                             "2. The family shall pay the agreed amount.\n"
-                             "3. Either party may terminate with 7 days notice.\n"
-                             "4. The worker shall be treated with respect.\n"
-                             "5. Disputes shall be resolved through GetBua admin."
-                         ))
-    created_at     = models.DateTimeField(auto_now_add=True)
+    duration_days     = models.PositiveIntegerField(
+                            null=True, blank=True)
+    total_amount      = models.PositiveIntegerField(
+                            null=True, blank=True)
+    terms             = models.TextField(
+                            default=(
+                                "1. The worker shall report on time every day.\n"
+                                "2. The family shall pay the agreed amount.\n"
+                                "3. Either party may terminate with 7 days notice.\n"
+                                "4. The worker shall be treated with respect.\n"
+                                "5. Disputes shall be resolved through GetBua admin."
+                            ))
+    created_at        = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return (f"Contract: {self.hiring_request.user.username}"
@@ -245,9 +347,11 @@ class Contract(models.Model):
 class Review(models.Model):
     SCORE_CHOICES = [(i, str(i)) for i in range(1, 6)]
 
-    user       = models.ForeignKey(User, on_delete=models.CASCADE,
+    user       = models.ForeignKey(User,
+                     on_delete=models.CASCADE,
                      related_name='reviews')
-    worker     = models.ForeignKey(Worker, on_delete=models.CASCADE,
+    worker     = models.ForeignKey(Worker,
+                     on_delete=models.CASCADE,
                      related_name='reviews')
     hire       = models.OneToOneField(HiringRequest,
                      on_delete=models.CASCADE,
@@ -286,7 +390,8 @@ class ReplacementRequest(models.Model):
                          related_name='replacement_requests')
     reason         = models.TextField()
     status         = models.CharField(max_length=20,
-                         choices=STATUS_CHOICES, default='Pending')
+                         choices=STATUS_CHOICES,
+                         default='Pending')
     admin_note     = models.TextField(blank=True)
     created_at     = models.DateTimeField(auto_now_add=True)
 
@@ -294,7 +399,8 @@ class ReplacementRequest(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"Replacement for {self.hiring_request} [{self.status}]"
+        return (f"Replacement for "
+                f"{self.hiring_request} [{self.status}]")
 
 
 # ─── SALARY PAYMENT ───────────────────────────────────────────────────────────
@@ -332,22 +438,24 @@ class SalaryPayment(models.Model):
 # ─── MESSAGE ──────────────────────────────────────────────────────────────────
 class Message(models.Model):
     STATUS_CHOICES = [
-        ('Open',     'Open'),
-        ('Replied',  'Replied'),
-        ('Closed',   'Closed'),
+        ('Open',    'Open'),
+        ('Replied', 'Replied'),
+        ('Closed',  'Closed'),
     ]
 
-    user        = models.ForeignKey(User, on_delete=models.CASCADE,
-                      related_name='messages')
-    subject     = models.CharField(max_length=200)
-    body        = models.TextField()
-    admin_reply = models.TextField(blank=True)
-    status      = models.CharField(max_length=20,
-                      choices=STATUS_CHOICES, default='Open')
+    user             = models.ForeignKey(User,
+                           on_delete=models.CASCADE,
+                           related_name='messages')
+    subject          = models.CharField(max_length=200)
+    body             = models.TextField()
+    admin_reply      = models.TextField(blank=True)
+    status           = models.CharField(max_length=20,
+                           choices=STATUS_CHOICES,
+                           default='Open')
     is_read_by_admin = models.BooleanField(default=False)
     is_read_by_user  = models.BooleanField(default=True)
-    created_at  = models.DateTimeField(auto_now_add=True)
-    replied_at  = models.DateTimeField(null=True, blank=True)
+    created_at       = models.DateTimeField(auto_now_add=True)
+    replied_at       = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ['-created_at']
