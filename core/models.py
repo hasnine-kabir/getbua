@@ -39,7 +39,6 @@ class Worker(models.Model):
         ('Gazipur',    'Gazipur'),
         ('Sylhet',     'Sylhet'),
     ]
-
     SKILL_CHOICES = [
         ('Cooking',            'Cooking'),
         ('Cleaning',           'Cleaning'),
@@ -50,20 +49,17 @@ class Worker(models.Model):
         ('Cooking & Cleaning', 'Cooking & Cleaning'),
         ('All Rounder',        'All Rounder'),
     ]
-
     AVAILABILITY_CHOICES = [
         ('Available',   'Available'),
         ('Hired',       'Hired'),
         ('Unavailable', 'Unavailable'),
     ]
-
     WORK_TYPE_CHOICES = [
         ('Full Time', 'Full Time'),
         ('Part Time', 'Part Time'),
         ('Live-in',   'Live-in'),
         ('Live-out',  'Live-out'),
     ]
-
     WORK_HOURS_CHOICES = [
         ('Morning (6AM - 12PM)',   'Morning (6AM - 12PM)'),
         ('Afternoon (12PM - 6PM)', 'Afternoon (12PM - 6PM)'),
@@ -71,7 +67,6 @@ class Worker(models.Model):
         ('Full Day (8AM - 6PM)',   'Full Day (8AM - 6PM)'),
         ('Flexible',               'Flexible'),
     ]
-
     DAY_OFF_CHOICES = [
         ('Friday',            'Friday'),
         ('Saturday',          'Saturday'),
@@ -79,7 +74,6 @@ class Worker(models.Model):
         ('No Fixed Day Off',  'No Fixed Day Off'),
         ('Negotiable',        'Negotiable'),
     ]
-
     GUARDIAN_RELATION_CHOICES = [
         ('Husband',  'Husband'),
         ('Father',   'Father'),
@@ -102,7 +96,8 @@ class Worker(models.Model):
     experience         = models.PositiveIntegerField(default=0)
     salary             = models.PositiveIntegerField()
     accepts_short_term = models.BooleanField(default=False)
-    daily_rate         = models.PositiveIntegerField(null=True, blank=True)
+    daily_rate         = models.PositiveIntegerField(
+                             null=True, blank=True)
     min_days           = models.PositiveIntegerField(default=1)
     work_type          = models.CharField(max_length=20,
                              choices=WORK_TYPE_CHOICES,
@@ -157,14 +152,12 @@ class Worker(models.Model):
 
 # ─── HIRING REQUEST ───────────────────────────────────────────────────────────
 class HiringRequest(models.Model):
-
     STATUS_CHOICES = [
         ('Pending',   'Pending'),
         ('Approved',  'Approved'),
         ('Rejected',  'Rejected'),
         ('Cancelled', 'Cancelled'),
     ]
-
     HIRE_TYPE_CHOICES = [
         ('Full Time',  'Full Time'),
         ('Short Term', 'Short Term'),
@@ -177,7 +170,8 @@ class HiringRequest(models.Model):
     status           = models.CharField(max_length=20,
                            choices=STATUS_CHOICES, default='Pending')
     hire_type        = models.CharField(max_length=20,
-                           choices=HIRE_TYPE_CHOICES, default='Full Time')
+                           choices=HIRE_TYPE_CHOICES,
+                           default='Full Time')
     message          = models.TextField(blank=True)
     proposed_salary  = models.PositiveIntegerField(null=True, blank=True)
     delivery_address = models.TextField(blank=True)
@@ -202,6 +196,10 @@ class HiringRequest(models.Model):
         return None
 
     def salary_status(self):
+        if self.hire_type == 'Short Term':
+            cost = self.total_cost()
+            return (f"Short Term — ৳{self.worker.daily_rate}/day × "
+                    f"{self.duration_days} days = ৳{cost}")
         if not self.proposed_salary:
             return f"Accepted ৳{self.worker.salary}/month"
         if self.proposed_salary < self.worker.salary:
@@ -218,10 +216,17 @@ class Contract(models.Model):
     start_date     = models.DateField()
     end_date       = models.DateField(null=True, blank=True)
     salary_agreed  = models.PositiveIntegerField()
+    # Short-term specific
+    daily_rate_agreed = models.PositiveIntegerField(
+                            null=True, blank=True)
+    duration_days  = models.PositiveIntegerField(
+                         null=True, blank=True)
+    total_amount   = models.PositiveIntegerField(
+                         null=True, blank=True)
     terms          = models.TextField(
                          default=(
                              "1. The worker shall report on time every day.\n"
-                             "2. The family shall pay the agreed salary monthly.\n"
+                             "2. The family shall pay the agreed amount.\n"
                              "3. Either party may terminate with 7 days notice.\n"
                              "4. The worker shall be treated with respect.\n"
                              "5. Disputes shall be resolved through GetBua admin."
@@ -231,6 +236,9 @@ class Contract(models.Model):
     def __str__(self):
         return (f"Contract: {self.hiring_request.user.username}"
                 f" ↔ {self.hiring_request.worker.name}")
+
+    def is_short_term(self):
+        return self.hiring_request.hire_type == 'Short Term'
 
 
 # ─── REVIEW ───────────────────────────────────────────────────────────────────
@@ -319,3 +327,31 @@ class SalaryPayment(models.Model):
         return (f"৳{self.amount} — "
                 f"{self.hiring_request.worker.name} "
                 f"{self.month} {self.year}")
+
+
+# ─── MESSAGE ──────────────────────────────────────────────────────────────────
+class Message(models.Model):
+    STATUS_CHOICES = [
+        ('Open',     'Open'),
+        ('Replied',  'Replied'),
+        ('Closed',   'Closed'),
+    ]
+
+    user        = models.ForeignKey(User, on_delete=models.CASCADE,
+                      related_name='messages')
+    subject     = models.CharField(max_length=200)
+    body        = models.TextField()
+    admin_reply = models.TextField(blank=True)
+    status      = models.CharField(max_length=20,
+                      choices=STATUS_CHOICES, default='Open')
+    is_read_by_admin = models.BooleanField(default=False)
+    is_read_by_user  = models.BooleanField(default=True)
+    created_at  = models.DateTimeField(auto_now_add=True)
+    replied_at  = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return (f"[{self.status}] {self.user.username}: "
+                f"{self.subject[:40]}")

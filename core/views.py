@@ -8,7 +8,8 @@ from django.db.models import Q
 from .forms import (RegisterForm, LoginForm,
                     ProfileEditForm, PasswordResetForm)
 from .models import (Worker, HiringRequest, Contract,
-                     Review, ReplacementRequest, SalaryPayment)
+                     Review, ReplacementRequest,
+                     SalaryPayment, Message)
 
 
 # ─── HOME ─────────────────────────────────────────────────────────────────────
@@ -471,26 +472,123 @@ def admin_dashboard(request):
     })
 
 
-# ─── APPROVE HIRE ─────────────────────────────────────────────────────────────
+# ─── APPROVE HIRE (FIXED for short-term) ──────────────────────────────────────
 @login_required
 def approve_hire(request, hire_id):
     if not request.user.is_staff:
         return redirect('home')
+    import datetime as dt
     hire        = get_object_or_404(HiringRequest, pk=hire_id)
     hire.status = 'Approved'
     hire.save()
     hire.worker.availability = 'Hired'
     hire.worker.save(update_fields=['availability'])
-    agreed = hire.proposed_salary or hire.worker.salary
+
     if not hasattr(hire, 'contract'):
-        Contract.objects.create(
-            hiring_request=hire,
-            start_date=datetime.date.today(),
-            salary_agreed=agreed,
-        )
+        if hire.hire_type == 'Short Term':
+            daily  = hire.worker.daily_rate or 0
+            days   = hire.duration_days or 1
+            total  = daily * days
+            end_dt = None
+            if hire.start_date and days:
+                end_dt = hire.start_date + dt.timedelta(days=days)
+            Contract.objects.create(
+                hiring_request    = hire,
+                start_date        = hire.start_date or dt.date.today(),
+                end_date          = end_dt,
+                salary_agreed     = 0,
+                daily_rate_agreed = daily,
+                duration_days     = days,
+                total_amount      = total,
+            )
+        else:
+            agreed = hire.proposed_salary or hire.worker.salary
+            Contract.objects.create(
+                hiring_request = hire,
+                start_date     = dt.date.today(),
+                salary_agreed  = agreed,
+            )
+
     messages.success(request,
         f"✅ Hire approved for {hire.worker.name}.")
     return redirect('admin_dashboard')
+
+
+# ─── MESSAGES — USER INBOX ────────────────────────────────────────────────────
+@login_required
+def message_inbox(request):
+    user_messages = Message.objects.filter(
+                        user=request.user).order_by('-created_at')
+    # Mark as read
+    user_messages.filter(
+        is_read_by_user=False).update(is_read_by_user=True)
+    return render(request, 'messaging/inbox.html',
+                  {'user_messages': user_messages})
+
+
+# ─── MESSAGES — COMPOSE ───────────────────────────────────────────────────────
+@login_required
+def message_compose(request):
+    if request.method == 'POST':
+        subject = request.POST.get('subject', '').strip()
+        body    = request.POST.get('body', '').strip()
+        if not subject or not body:
+            messages.error(request,
+                           "Subject and message are required.")
+            return render(request, 'messaging/compose.html')
+        Message.objects.create(
+            user=request.user,
+            subject=subject,
+            body=body
+        )
+        messages.success(request,
+            "✅ Message sent! Admin will reply shortly.")
+        return redirect('message_inbox')
+    return render(request, 'messaging/compose.html')
+
+
+# ─── MESSAGES — ADMIN VIEW ────────────────────────────────────────────────────
+@login_required
+def admin_messages(request):
+    if not request.user.is_staff:
+        messages.error(request, "Access denied.")
+        return redirect('home')
+    all_msgs = Message.objects.all().select_related(
+                   'user').order_by('-created_at')
+    open_count = all_msgs.filter(status='Open').count()
+    # Mark as read by admin
+    all_msgs.filter(
+        is_read_by_admin=False).update(is_read_by_admin=True)
+    return render(request, 'messaging/admin_inbox.html', {
+        'all_msgs':   all_msgs,
+        'open_count': open_count,
+    })
+
+
+# ─── MESSAGES — ADMIN REPLY ───────────────────────────────────────────────────
+@login_required
+def admin_reply_message(request, msg_id):
+    if not request.user.is_staff:
+        return redirect('home')
+    from django.utils import timezone
+    msg = get_object_or_404(Message, pk=msg_id)
+    if request.method == 'POST':
+        reply = request.POST.get('reply', '').strip()
+        if not reply:
+            messages.error(request, "Reply cannot be empty.")
+            return render(request, 'messaging/admin_reply.html',
+                          {'msg': msg})
+        msg.admin_reply      = reply
+        msg.status           = 'Replied'
+        msg.replied_at       = timezone.now()
+        msg.is_read_by_user  = False
+        msg.is_read_by_admin = True
+        msg.save()
+        messages.success(request,
+            f"✅ Reply sent to {msg.user.username}.")
+        return redirect('admin_messages')
+    return render(request, 'messaging/admin_reply.html',
+                  {'msg': msg})
 
 
 # ─── REJECT HIRE ──────────────────────────────────────────────────────────────

@@ -2,79 +2,114 @@
 {% block title %}Admin Dashboard – GetBua{% endblock %}
 
 {% block content %}
+
+<!-- Header -->
 <div class="d-flex justify-content-between align-items-center mb-4">
-  <h2 class="fw-bold mb-0">
-    <i class="bi bi-speedometer2 text-danger"></i> Admin Dashboard
-  </h2>
-  <a href="/admin/" class="btn btn-outline-danger btn-sm" target="_blank">
-    <i class="bi bi-gear"></i> Django Admin
-  </a>
+  <div>
+    <h2 class="fw-bold mb-0">
+      <i class="bi bi-speedometer2 me-2"
+         style="color:#4A90E2;"></i>Admin Dashboard
+    </h2>
+    <p class="text-muted mb-0">
+      Manage hiring requests, replacements and messages
+    </p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'admin_messages' %}"
+       class="btn btn-primary btn-sm px-3">
+      <i class="bi bi-envelope me-1"></i>
+      Customer Messages
+      {% if replace_count %}
+      <span class="badge bg-white text-primary ms-1">
+        {{ replace_count }}
+      </span>
+      {% endif %}
+    </a>
+    <a href="/admin/" class="btn btn-outline-primary btn-sm px-3"
+       target="_blank">
+      <i class="bi bi-gear me-1"></i>Django Admin
+    </a>
+  </div>
 </div>
 
-<!-- ── STATS CARDS ──────────────────────────────────────────── -->
+<!-- ── STATS CARDS ─────────────────────────────────────────── -->
 <div class="row g-3 mb-4">
-  <div class="col-md-3">
-    <div class="card border-0 shadow-sm p-3 text-center
-                border-start border-danger border-4">
-      <div class="display-5 fw-bold text-danger">
-        {{ total_workers }}
-      </div>
-      <div class="text-muted small">Total Workers</div>
-      <div class="text-success small">
+  <div class="col-6 col-md-3">
+    <div class="stat-card"
+         style="border-left:4px solid #4A90E2;">
+      <div class="stat-number">{{ total_workers }}</div>
+      <div class="stat-label">Total Workers</div>
+      <div class="small mt-1"
+           style="color:#27AE60;">
         {{ avail_workers }} available
       </div>
     </div>
   </div>
-  <div class="col-md-3">
-    <div class="card border-0 shadow-sm p-3 text-center
-                border-start border-warning border-4">
-      <div class="display-5 fw-bold text-warning">
+  <div class="col-6 col-md-3">
+    <div class="stat-card"
+         style="border-left:4px solid #F39C12;">
+      <div class="stat-number"
+           style="color:#F39C12;">
         {{ pending_count }}
       </div>
-      <div class="text-muted small">Pending Requests</div>
-      <div class="text-muted small">awaiting approval</div>
+      <div class="stat-label">Pending Requests</div>
+      <div class="small mt-1 text-muted">
+        awaiting approval
+      </div>
     </div>
   </div>
-  <div class="col-md-3">
-    <div class="card border-0 shadow-sm p-3 text-center
-                border-start border-success border-4">
-      <div class="display-5 fw-bold text-success">
+  <div class="col-6 col-md-3">
+    <div class="stat-card"
+         style="border-left:4px solid #27AE60;">
+      <div class="stat-number"
+           style="color:#27AE60;">
         {{ approved_count }}
       </div>
-      <div class="text-muted small">Approved Hires</div>
-      <div class="text-muted small">active contracts</div>
+      <div class="stat-label">Approved Hires</div>
+      <div class="small mt-1 text-muted">
+        active contracts
+      </div>
     </div>
   </div>
-  <div class="col-md-3">
-    <div class="card border-0 shadow-sm p-3 text-center
-                border-start border-info border-4">
-      <div class="display-5 fw-bold text-info">
+  <div class="col-6 col-md-3">
+    <div class="stat-card"
+         style="border-left:4px solid #8E44AD;">
+      <div class="stat-number"
+           style="color:#8E44AD;">
         {{ replace_count }}
       </div>
-      <div class="text-muted small">Replacements</div>
-      <div class="text-muted small">pending resolution</div>
+      <div class="stat-label">Replacements</div>
+      <div class="small mt-1 text-muted">
+        pending resolution
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ── PENDING HIRES ────────────────────────────────────────── -->
-<div class="card border-0 shadow-sm mb-4">
-  <div class="card-header bg-warning text-dark fw-bold">
-    <i class="bi bi-clock-fill"></i>
+<!-- ── PENDING HIRES ───────────────────────────────────────── -->
+<div class="card border-0 mb-4"
+     style="border-radius:16px;">
+  <div class="card-header fw-bold py-3 px-4"
+       style="background:#FFF3CD;color:#856404;
+              border-radius:16px 16px 0 0;border:none;">
+    <i class="bi bi-clock-fill me-2"></i>
     Pending Hiring Requests
-    <span class="badge bg-dark ms-2">{{ pending_count }}</span>
+    <span class="badge ms-2"
+          style="background:#856404;color:white;">
+      {{ pending_count }}
+    </span>
   </div>
   <div class="card-body p-0">
     {% if pending_hires %}
     <div class="table-responsive">
       <table class="table table-hover mb-0">
-        <thead class="table-light">
+        <thead>
           <tr>
             <th>Family</th>
             <th>Worker</th>
-            <th>Location</th>
-            <th>Salary</th>
-            <th>Message</th>
+            <th>Type</th>
+            <th>Salary / Cost</th>
+            <th>Delivery Address</th>
             <th>Date</th>
             <th>Action</th>
           </tr>
@@ -87,37 +122,91 @@
                 {{ hire.user.get_full_name|default:hire.user.username }}
               </strong>
               <br>
-              <small class="text-muted">{{ hire.user.email }}</small>
-            </td>
-            <td>
-              <strong>{{ hire.worker.name }}</strong><br>
-              <small class="text-muted">{{ hire.worker.skills }}</small>
-            </td>
-            <td>{{ hire.worker.location }}</td>
-            <td class="text-success fw-bold">
-              ৳{{ hire.worker.salary }}
-            </td>
-            <td>
-              <small class="text-muted fst-italic">
-                {{ hire.message|truncatechars:40|default:"—" }}
+              <small class="text-muted">
+                {{ hire.user.email }}
               </small>
             </td>
             <td>
-              <small>{{ hire.created_at|date:"d M Y" }}</small>
+              <strong>{{ hire.worker.name }}</strong><br>
+              <small class="text-muted">
+                {{ hire.worker.skills }}
+              </small>
             </td>
             <td>
-              <a href="{% url 'approve_hire' hire.pk %}"
-                 class="btn btn-success btn-sm me-1"
-                 onclick="return confirm(
-                   'Approve hire for {{ hire.worker.name }}?')">
-                <i class="bi bi-check-lg"></i> Approve
-              </a>
-              <a href="{% url 'reject_hire' hire.pk %}"
-                 class="btn btn-danger btn-sm"
-                 onclick="return confirm(
-                   'Reject hire for {{ hire.worker.name }}?')">
-                <i class="bi bi-x-lg"></i> Reject
-              </a>
+              {% if hire.hire_type == 'Short Term' %}
+              <span class="badge"
+                    style="background:#F9F0FF;color:#8E44AD;
+                           border:1px solid #8E44AD;">
+                ⚡ Short Term
+              </span>
+              <br>
+              <small class="text-muted">
+                {{ hire.duration_days }} days
+              </small>
+              {% else %}
+              <span class="badge"
+                    style="background:#F0FFF4;color:#27AE60;
+                           border:1px solid #27AE60;">
+                📅 Full Time
+              </span>
+              {% endif %}
+            </td>
+            <td>
+              {% if hire.hire_type == 'Short Term' %}
+              <span style="color:#8E44AD;font-weight:600;">
+                ৳{{ hire.worker.daily_rate }}/day
+              </span>
+              <br>
+              <small class="text-muted">
+                × {{ hire.duration_days }} days
+              </small>
+              <br>
+              <strong style="color:#8E44AD;">
+                = ৳{% if hire.total_cost %}{{ hire.total_cost }}{% endif %}
+              </strong>
+              {% elif hire.proposed_salary %}
+              <span style="color:#F39C12;font-weight:600;">
+                ৳{{ hire.proposed_salary }}
+              </span>
+              <br>
+              <small class="text-muted">
+                (asked ৳{{ hire.worker.salary }})
+              </small>
+              {% else %}
+              <span style="color:#27AE60;font-weight:600;">
+                ৳{{ hire.worker.salary }}/mo
+              </span>
+              {% endif %}
+            </td>
+            <td>
+              <small class="text-muted">
+                {{ hire.delivery_address|default:"—"|truncatechars:40 }}
+              </small>
+            </td>
+            <td>
+              <small>
+                {{ hire.created_at|date:"d M Y" }}
+              </small>
+            </td>
+            <td>
+              <div class="d-flex flex-column gap-1">
+                <a href="{% url 'approve_hire' hire.pk %}"
+                   class="btn btn-sm fw-bold"
+                   style="background:#27AE60;color:white;
+                          border:none;border-radius:8px;"
+                   onclick="return confirm(
+                     'Approve hire for {{ hire.worker.name }}?')">
+                  <i class="bi bi-check-lg me-1"></i>Approve
+                </a>
+                <a href="{% url 'reject_hire' hire.pk %}"
+                   class="btn btn-sm fw-bold"
+                   style="background:#E74C3C;color:white;
+                          border:none;border-radius:8px;"
+                   onclick="return confirm(
+                     'Reject hire for {{ hire.worker.name }}?')">
+                  <i class="bi bi-x-lg me-1"></i>Reject
+                </a>
+              </div>
             </td>
           </tr>
           {% endfor %}
@@ -125,29 +214,35 @@
       </table>
     </div>
     {% else %}
-      <div class="text-center py-4 text-muted">
-        <i class="bi bi-check-circle text-success"
-           style="font-size:2rem;"></i>
-        <p class="mt-2 mb-0">No pending requests. All clear!</p>
-      </div>
+    <div class="text-center py-4">
+      <i class="bi bi-check-circle-fill"
+         style="font-size:2rem;color:#27AE60;"></i>
+      <p class="text-muted mt-2 mb-0">
+        No pending requests. All clear!
+      </p>
+    </div>
     {% endif %}
   </div>
 </div>
 
-<!-- ── REPLACEMENT REQUESTS ─────────────────────────────────── -->
+<!-- ── REPLACEMENT REQUESTS ────────────────────────────────── -->
 {% if replacements %}
-<div class="card border-0 shadow-sm mb-4">
-  <div class="card-header bg-danger text-white fw-bold">
-    <i class="bi bi-arrow-repeat"></i>
+<div class="card border-0 mb-4"
+     style="border-radius:16px;">
+  <div class="card-header fw-bold py-3 px-4"
+       style="background:#F9F0FF;color:#6C3483;
+              border-radius:16px 16px 0 0;border:none;">
+    <i class="bi bi-arrow-repeat me-2"></i>
     Pending Replacement Requests
-    <span class="badge bg-white text-danger ms-2">
+    <span class="badge ms-2"
+          style="background:#6C3483;color:white;">
       {{ replace_count }}
     </span>
   </div>
   <div class="card-body p-0">
     <div class="table-responsive">
       <table class="table table-hover mb-0">
-        <thead class="table-light">
+        <thead>
           <tr>
             <th>Family</th>
             <th>Current Worker</th>
@@ -171,17 +266,21 @@
               </small>
             </td>
             <td>
-              <small class="text-muted">
+              <small class="text-muted fst-italic">
                 {{ rep.reason|truncatechars:60 }}
               </small>
             </td>
             <td>
-              <small>{{ rep.created_at|date:"d M Y" }}</small>
+              <small>
+                {{ rep.created_at|date:"d M Y" }}
+              </small>
             </td>
             <td>
               <a href="{% url 'resolve_replacement' rep.pk %}"
-                 class="btn btn-warning btn-sm">
-                <i class="bi bi-check2-circle"></i> Resolve
+                 class="btn btn-sm fw-bold"
+                 style="background:#8E44AD;color:white;
+                        border:none;border-radius:8px;">
+                <i class="bi bi-check2-circle me-1"></i>Resolve
               </a>
             </td>
           </tr>
@@ -193,19 +292,24 @@
 </div>
 {% endif %}
 
-<!-- ── ALL HIRES HISTORY ─────────────────────────────────────── -->
-<div class="card border-0 shadow-sm mb-4">
-  <div class="card-header bg-light fw-bold">
-    <i class="bi bi-list-ul"></i> All Hiring Requests History
+<!-- ── ALL HIRES HISTORY ───────────────────────────────────── -->
+<div class="card border-0 mb-4"
+     style="border-radius:16px;">
+  <div class="card-header fw-bold py-3 px-4"
+       style="background:#F5F7FA;color:#2D3748;
+              border-radius:16px 16px 0 0;border:none;">
+    <i class="bi bi-list-ul me-2"></i>
+    All Hiring Requests History
   </div>
   <div class="card-body p-0">
     <div class="table-responsive">
       <table class="table table-hover mb-0 small">
-        <thead class="table-light">
+        <thead>
           <tr>
             <th>#</th>
             <th>Family</th>
             <th>Worker</th>
+            <th>Type</th>
             <th>Status</th>
             <th>Date</th>
           </tr>
@@ -219,14 +323,37 @@
             </td>
             <td>{{ hire.worker.name }}</td>
             <td>
-              {% if hire.status == 'Pending' %}
-                <span class="badge bg-warning text-dark">Pending</span>
-              {% elif hire.status == 'Approved' %}
-                <span class="badge bg-success">Approved</span>
-              {% elif hire.status == 'Rejected' %}
-                <span class="badge bg-danger">Rejected</span>
+              {% if hire.hire_type == 'Short Term' %}
+              <span style="color:#8E44AD;font-weight:600;">
+                ⚡ Short
+              </span>
               {% else %}
-                <span class="badge bg-secondary">Cancelled</span>
+              <span style="color:#27AE60;font-weight:600;">
+                📅 Full
+              </span>
+              {% endif %}
+            </td>
+            <td>
+              {% if hire.status == 'Pending' %}
+              <span class="badge"
+                    style="background:#FFF3CD;color:#856404;">
+                Pending
+              </span>
+              {% elif hire.status == 'Approved' %}
+              <span class="badge"
+                    style="background:#D4EDDA;color:#155724;">
+                Approved
+              </span>
+              {% elif hire.status == 'Rejected' %}
+              <span class="badge"
+                    style="background:#F8D7DA;color:#721C24;">
+                Rejected
+              </span>
+              {% else %}
+              <span class="badge"
+                    style="background:#E2E8F0;color:#718096;">
+                Cancelled
+              </span>
               {% endif %}
             </td>
             <td>{{ hire.created_at|date:"d M Y" }}</td>
@@ -237,4 +364,5 @@
     </div>
   </div>
 </div>
+
 {% endblock %}

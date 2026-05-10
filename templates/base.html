@@ -314,19 +314,29 @@
           </a>
         </li>
         {% if user.is_authenticated %}
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'my_hires' %}">
-            <i class="bi bi-briefcase me-1"></i>My Hires
-          </a>
-        </li>
-        {% if user.is_staff %}
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'admin_dashboard' %}">
-            <i class="bi bi-speedometer2 me-1"></i>Dashboard
-          </a>
-        </li>
-        {% endif %}
-        {% endif %}
+<li class="nav-item">
+  <a class="nav-link" href="{% url 'my_hires' %}">
+    <i class="bi bi-briefcase me-1"></i>My Hires
+  </a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="{% url 'message_inbox' %}">
+    <i class="bi bi-envelope me-1"></i>Messages
+  </a>
+</li>
+{% if user.is_staff %}
+<li class="nav-item">
+  <a class="nav-link" href="{% url 'admin_messages' %}">
+    <i class="bi bi-envelope-fill me-1"></i>Inbox
+  </a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="{% url 'admin_dashboard' %}">
+    <i class="bi bi-speedometer2 me-1"></i>Dashboard
+  </a>
+</li>
+{% endif %}
+{% endif %}
       </ul>
       <ul class="navbar-nav gap-1 align-items-center">
         {% if user.is_authenticated %}

@@ -8,24 +8,50 @@ urlpatterns = [
     path('logout/',       views.logout_view,         name='logout'),
     path('profile/',      views.profile_view,        name='profile'),
     path('profile/edit/', views.profile_edit,        name='profile_edit'),
-    path('reset-password/', views.custom_password_reset, name='custom_password_reset'),
+    path('reset-password/',views.custom_password_reset,
+                                             name='custom_password_reset'),
     path('training/',     views.training_page,       name='training'),
 
+    # Workers
     path('workers/',          views.worker_list,    name='worker_list'),
     path('workers/<int:pk>/', views.worker_detail,  name='worker_detail'),
     path('short-term/',       views.short_term_list,name='short_term_list'),
 
-    path('hire/<int:worker_id>/',   views.hire_worker,         name='hire_worker'),
-    path('my-hires/',               views.my_hires,            name='my_hires'),
-    path('contract/<int:hire_id>/', views.view_contract,       name='view_contract'),
-    path('rate/<int:hire_id>/',     views.submit_rating,       name='submit_rating'),
-    path('replace/<int:hire_id>/',  views.request_replacement, name='request_replacement'),
+    # Hiring
+    path('hire/<int:worker_id>/',   views.hire_worker,
+                                             name='hire_worker'),
+    path('my-hires/',               views.my_hires,
+                                             name='my_hires'),
+    path('contract/<int:hire_id>/', views.view_contract,
+                                             name='view_contract'),
+    path('rate/<int:hire_id>/',     views.submit_rating,
+                                             name='submit_rating'),
+    path('replace/<int:hire_id>/',  views.request_replacement,
+                                             name='request_replacement'),
 
-    path('salary/add/<int:hire_id>/',     views.add_salary_payment, name='add_salary_payment'),
-    path('salary/history/<int:hire_id>/', views.salary_history,     name='salary_history'),
+    # Salary
+    path('salary/add/<int:hire_id>/',     views.add_salary_payment,
+                                             name='add_salary_payment'),
+    path('salary/history/<int:hire_id>/', views.salary_history,
+                                             name='salary_history'),
 
-    path('dashboard/',                       views.admin_dashboard,    name='admin_dashboard'),
-    path('dashboard/approve/<int:hire_id>/', views.approve_hire,       name='approve_hire'),
-    path('dashboard/reject/<int:hire_id>/',  views.reject_hire,        name='reject_hire'),
-    path('dashboard/resolve/<int:rep_id>/',  views.resolve_replacement,name='resolve_replacement'),
+    # Messaging
+    path('messages/',                     views.message_inbox,
+                                             name='message_inbox'),
+    path('messages/compose/',             views.message_compose,
+                                             name='message_compose'),
+    path('messages/admin/',               views.admin_messages,
+                                             name='admin_messages'),
+    path('messages/reply/<int:msg_id>/',  views.admin_reply_message,
+                                             name='admin_reply_message'),
+
+    # Admin Dashboard
+    path('dashboard/',
+         views.admin_dashboard,           name='admin_dashboard'),
+    path('dashboard/approve/<int:hire_id>/',
+         views.approve_hire,              name='approve_hire'),
+    path('dashboard/reject/<int:hire_id>/',
+         views.reject_hire,               name='reject_hire'),
+    path('dashboard/resolve/<int:rep_id>/',
+         views.resolve_replacement,       name='resolve_replacement'),
 ]

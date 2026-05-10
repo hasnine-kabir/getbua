@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}Reply to Message – GetBua{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="card border-0 p-4"
+         style="border-radius:20px;">
+
+      <div class="d-flex align-items-center mb-4">
+        <a href="{% url 'admin_messages' %}"
+           class="btn btn-sm me-3"
+           style="background:#F5F7FA;
+                  border:1px solid #E2E8F0;">
+          <i class="bi bi-arrow-left"></i>
+        </a>
+        <h3 class="fw-bold mb-0">
+          <i class="bi bi-reply me-2"
+             style="color:#4A90E2;"></i>Reply to Message
+        </h3>
+      </div>
+
+      <!-- Customer Message -->
+      <div class="p-4 rounded-3 mb-4"
+           style="background:#F5F7FA;
+                  border-left:4px solid #4A90E2;">
+        <div class="d-flex align-items-center mb-3">
+          <div style="width:40px;height:40px;border-radius:50%;
+                      background:linear-gradient(135deg,
+                      #4A90E2,#2C5AA0);color:white;
+                      font-weight:700;display:flex;
+                      align-items:center;justify-content:center;
+                      flex-shrink:0;margin-right:12px;">
+            {{ msg.user.first_name|first|upper }}
+          </div>
+          <div>
+            <div class="fw-bold">
+              {{ msg.user.get_full_name|default:msg.user.username }}
+            </div>
+            <div class="text-muted small">
+              {{ msg.user.email }} ·
+              {{ msg.created_at|date:"d M Y H:i" }}
+            </div>
+          </div>
+        </div>
+        <h5 class="fw-bold mb-2">{{ msg.subject }}</h5>
+        <p class="mb-0">{{ msg.body }}</p>
+      </div>
+
+      <!-- Existing Reply -->
+      {% if msg.admin_reply %}
+      <div class="p-3 rounded-3 mb-4"
+           style="background:#F0FFF4;
+                  border-left:4px solid #27AE60;">
+        <div class="small fw-semibold mb-1"
+             style="color:#27AE60;">
+          <i class="bi bi-check-circle me-1"></i>
+          Previous reply · {{ msg.replied_at|date:"d M Y H:i" }}
+        </div>
+        <p class="mb-0">{{ msg.admin_reply }}</p>
+      </div>
+      {% endif %}
+
+      <!-- Reply Form -->
+      <form method="POST">
+        {% csrf_token %}
+        <div class="mb-4">
+          <label class="form-label">
+            Your Reply <span style="color:#dc3545;">*</span>
+          </label>
+          <textarea name="reply" class="form-control"
+                    rows="6" required
+                    placeholder="Write your reply here...">{{ msg.admin_reply }}</textarea>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit"
+                  class="btn btn-primary flex-fill fw-bold py-2">
+            <i class="bi bi-send me-2"></i>Send Reply
+          </button>
+          <a href="{% url 'admin_messages' %}"
+             class="btn flex-fill py-2"
+             style="background:#F5F7FA;
+                    border:1px solid #E2E8F0;">
+            Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

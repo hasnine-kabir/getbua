@@ -4,41 +4,83 @@
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-md-8">
-    <div class="card border-0 shadow p-5"
-         style="font-family:'Georgia',serif;">
+    <div class="card border-0 shadow p-5 d-print-block"
+         style="font-family:'Georgia',serif;border-radius:20px;">
 
       <!-- Header -->
       <div class="text-center border-bottom pb-4 mb-4">
-        <h2 class="fw-bold text-danger">🏠 GetBua</h2>
-        <h4 class="fw-bold">Domestic Worker Service Agreement</h4>
+        <h2 class="fw-bold" style="color:#2C5AA0;">
+          🏠 GetBua
+        </h2>
+        <h4 class="fw-bold">
+          {% if contract.is_short_term %}
+            Short-Term Service Agreement
+          {% else %}
+            Domestic Worker Service Agreement
+          {% endif %}
+        </h4>
         <p class="text-muted small mb-0">
           Contract ID: #{{ contract.pk }} &nbsp;|&nbsp;
           Generated: {{ contract.created_at|date:"d M Y" }}
         </p>
       </div>
 
+      <!-- Type Badge -->
+      {% if contract.is_short_term %}
+      <div class="text-center mb-4">
+        <span style="background:linear-gradient(135deg,#8E44AD,#6C3483);
+                     color:white;padding:6px 20px;
+                     border-radius:20px;font-size:0.9rem;
+                     font-weight:600;">
+          ⚡ Short-Term / Daily Hire Contract
+        </span>
+      </div>
+      {% else %}
+      <div class="text-center mb-4">
+        <span style="background:linear-gradient(135deg,#27AE60,#1e8449);
+                     color:white;padding:6px 20px;
+                     border-radius:20px;font-size:0.9rem;
+                     font-weight:600;">
+          📅 Full-Time Monthly Contract
+        </span>
+      </div>
+      {% endif %}
+
       <!-- Parties -->
       <div class="row mb-4">
         <div class="col-md-6">
-          <div class="p-3 bg-light rounded border-start border-danger border-3">
-            <h6 class="fw-bold text-danger mb-2">
-              <i class="bi bi-house-fill"></i> Family (Employer)
+          <div class="p-3 rounded-3"
+               style="background:#F0F4FF;
+                      border-left:4px solid #4A90E2;">
+            <h6 class="fw-bold mb-2" style="color:#4A90E2;">
+              <i class="bi bi-house-fill me-1"></i>
+              Family (Employer)
             </h6>
             <p class="mb-1">
               <strong>
                 {{ hire.user.get_full_name|default:hire.user.username }}
               </strong>
             </p>
-            <p class="mb-1 small text-muted">{{ hire.user.email }}</p>
-            <p class="mb-0 small text-muted">
+            <p class="mb-1 small text-muted">
+              {{ hire.user.email }}
+            </p>
+            <p class="mb-1 small text-muted">
               {{ hire.user.profile.phone }}
             </p>
+            {% if hire.delivery_address %}
+            <p class="mb-0 small text-muted">
+              📍 {{ hire.delivery_address }}
+            </p>
+            {% endif %}
           </div>
         </div>
         <div class="col-md-6">
-          <div class="p-3 bg-light rounded border-start border-success border-3">
-            <h6 class="fw-bold text-success mb-2">
-              <i class="bi bi-person-fill"></i> Domestic Worker
+          <div class="p-3 rounded-3"
+               style="background:#F0FFF4;
+                      border-left:4px solid #27AE60;">
+            <h6 class="fw-bold mb-2" style="color:#27AE60;">
+              <i class="bi bi-person-fill me-1"></i>
+              Domestic Worker
             </h6>
             <p class="mb-1">
               <strong>{{ hire.worker.name }}</strong>
@@ -53,17 +95,34 @@
         </div>
       </div>
 
-      <!-- Contract Details -->
+      <!-- Contract Details Table -->
       <table class="table table-bordered mb-4">
         <tbody>
           <tr>
-            <td class="fw-semibold bg-light" width="35%">
-              Start Date
+            <td class="fw-semibold" width="35%"
+                style="background:#F5F7FA;">
+              Contract Type
             </td>
+            <td>
+              {% if contract.is_short_term %}
+                <strong style="color:#8E44AD;">
+                  ⚡ Short-Term / Daily Hire
+                </strong>
+              {% else %}
+                <strong style="color:#27AE60;">
+                  📅 Full-Time Monthly
+                </strong>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <td class="fw-semibold"
+                style="background:#F5F7FA;">Start Date</td>
             <td>{{ contract.start_date|date:"d M Y" }}</td>
           </tr>
           <tr>
-            <td class="fw-semibold bg-light">End Date</td>
+            <td class="fw-semibold"
+                style="background:#F5F7FA;">End Date</td>
             <td>
               {% if contract.end_date %}
                 {{ contract.end_date|date:"d M Y" }}
@@ -72,15 +131,67 @@
               {% endif %}
             </td>
           </tr>
+
+          {% if contract.is_short_term %}
           <tr>
-            <td class="fw-semibold bg-light">Monthly Salary</td>
-            <td class="text-success fw-bold">
-              ৳{{ contract.salary_agreed }}
+            <td class="fw-semibold"
+                style="background:#F5F7FA;">Daily Rate</td>
+            <td class="fw-bold" style="color:#8E44AD;">
+              ৳{{ contract.daily_rate_agreed }}/day
             </td>
           </tr>
           <tr>
-            <td class="fw-semibold bg-light">Payment Method</td>
+            <td class="fw-semibold"
+                style="background:#F5F7FA;">
+              Number of Days
+            </td>
+            <td class="fw-bold">
+              {{ contract.duration_days }}
+              day{{ contract.duration_days|pluralize }}
+            </td>
+          </tr>
+          <tr style="background:#F9F0FF;">
+            <td class="fw-bold"
+                style="background:#F9F0FF;">
+              Total Amount
+            </td>
+            <td class="fw-bold"
+                style="color:#8E44AD;font-size:1.1rem;">
+              ৳{{ contract.total_amount }}
+              <span class="text-muted fw-normal small">
+                (৳{{ contract.daily_rate_agreed }} ×
+                {{ contract.duration_days }} days)
+              </span>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td class="fw-semibold"
+                style="background:#F5F7FA;">
+              Monthly Salary
+            </td>
+            <td class="fw-bold"
+                style="color:#27AE60;font-size:1.1rem;">
+              ৳{{ contract.salary_agreed }}/month
+            </td>
+          </tr>
+          <tr>
+            <td class="fw-semibold"
+                style="background:#F5F7FA;">
+              Payment Method
+            </td>
             <td>Cash (monthly)</td>
+          </tr>
+          {% endif %}
+
+          <tr>
+            <td class="fw-semibold"
+                style="background:#F5F7FA;">
+              Delivery Address
+            </td>
+            <td>
+              {{ hire.delivery_address|default:"As discussed" }}
+            </td>
           </tr>
         </tbody>
       </table>
@@ -88,10 +199,13 @@
       <!-- Terms -->
       <div class="mb-4">
         <h6 class="fw-bold mb-2">
-          <i class="bi bi-file-text text-danger"></i> Terms & Conditions
+          <i class="bi bi-file-text me-2"
+             style="color:#4A90E2;"></i>
+          Terms & Conditions
         </h6>
-        <div class="p-3 bg-light rounded"
-             style="white-space:pre-line; font-size:0.92rem;">
+        <div class="p-3 rounded-3"
+             style="background:#F5F7FA;
+                    white-space:pre-line;font-size:0.92rem;">
           {{ contract.terms }}
         </div>
       </div>
@@ -99,30 +213,41 @@
       <!-- Signatures -->
       <div class="row border-top pt-4">
         <div class="col-md-4 text-center">
-          <div class="border-bottom mb-1 pb-3">&nbsp;</div>
+          <div style="border-bottom:2px solid #dee2e6;
+                      margin-bottom:8px;height:40px;"></div>
           <small class="text-muted">Family Signature</small>
         </div>
         <div class="col-md-4 text-center">
-          <div class="border-bottom mb-1 pb-3">&nbsp;</div>
-          <small class="text-muted">Worker / Guardian Signature</small>
+          <div style="border-bottom:2px solid #dee2e6;
+                      margin-bottom:8px;height:40px;"></div>
+          <small class="text-muted">
+            Worker / Guardian Signature
+          </small>
         </div>
         <div class="col-md-4 text-center">
-          <div class="border-bottom mb-1 pb-3">
-            <strong class="text-danger">GetBua</strong>
+          <div style="border-bottom:2px solid #dee2e6;
+                      margin-bottom:8px;height:40px;
+                      display:flex;align-items:flex-end;
+                      justify-content:center;">
+            <strong style="color:#2C5AA0;font-size:1.1rem;">
+              GetBua
+            </strong>
           </div>
           <small class="text-muted">GetBua Admin Seal</small>
         </div>
       </div>
 
-      <!-- Print Button -->
+      <!-- Actions -->
       <div class="text-center mt-4 d-print-none">
         <button onclick="window.print()"
-                class="btn btn-danger me-2">
-          <i class="bi bi-printer"></i> Print Contract
+                class="btn btn-primary me-2 px-4">
+          <i class="bi bi-printer me-2"></i>Print Contract
         </button>
         <a href="{% url 'my_hires' %}"
-           class="btn btn-outline-secondary">
-          <i class="bi bi-arrow-left"></i> Back to My Hires
+           class="btn px-4"
+           style="background:#F5F7FA;
+                  border:1px solid #E2E8F0;">
+          <i class="bi bi-arrow-left me-2"></i>Back to My Hires
         </a>
       </div>
 

@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% block title %}Customer Messages – GetBua{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="fw-bold mb-0">
+      <i class="bi bi-envelope-fill me-2"
+         style="color:#4A90E2;"></i>Customer Messages
+    </h2>
+    <p class="text-muted mb-0">
+      {{ open_count }} open
+      message{{ open_count|pluralize }} awaiting reply
+    </p>
+  </div>
+  <a href="{% url 'admin_dashboard' %}"
+     class="btn btn-outline-primary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i>Dashboard
+  </a>
+</div>
+
+{% if all_msgs %}
+  {% for msg in all_msgs %}
+
+  {% if msg.status == 'Open' %}
+  <div class="card border-0 mb-3"
+       style="border-radius:14px;
+              border-left:4px solid #F39C12 !important;">
+  {% elif msg.status == 'Replied' %}
+  <div class="card border-0 mb-3"
+       style="border-radius:14px;
+              border-left:4px solid #27AE60 !important;">
+  {% else %}
+  <div class="card border-0 mb-3"
+       style="border-radius:14px;
+              border-left:4px solid #E2E8F0 !important;">
+  {% endif %}
+
+    <div class="card-body p-4">
+      <div class="row align-items-start g-3">
+
+        <!-- User Info -->
+        <div class="col-md-3">
+          <div class="d-flex align-items-center mb-2">
+            <div style="width:42px;height:42px;border-radius:50%;
+                        background:linear-gradient(135deg,
+                        #4A90E2,#2C5AA0);color:white;
+                        font-weight:700;display:flex;
+                        align-items:center;justify-content:center;
+                        flex-shrink:0;margin-right:10px;
+                        font-size:1rem;">
+              {{ msg.user.first_name|first|upper }}
+            </div>
+            <div>
+              <div class="fw-bold small">
+                {{ msg.user.get_full_name|default:msg.user.username }}
+              </div>
+              <div class="text-muted"
+                   style="font-size:0.75rem;">
+                {{ msg.user.email }}
+              </div>
+            </div>
+          </div>
+          <div class="text-muted"
+               style="font-size:0.75rem;">
+            {{ msg.created_at|date:"d M Y H:i" }}
+          </div>
+
+          <!-- Status Badge -->
+          <div class="mt-2">
+            {% if msg.status == 'Open' %}
+            <span class="badge"
+                  style="background:#FFF3CD;color:#856404;
+                         border:1px solid #FFC107;">
+              <i class="bi bi-clock me-1"></i>Open
+            </span>
+            {% elif msg.status == 'Replied' %}
+            <span class="badge"
+                  style="background:#D4EDDA;color:#155724;
+                         border:1px solid #28A745;">
+              <i class="bi bi-check me-1"></i>Replied
+            </span>
+            {% else %}
+            <span class="badge"
+                  style="background:#E2E8F0;color:#718096;">
+              Closed
+            </span>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Message Content -->
+        <div class="col-md-7">
+          <h6 class="fw-bold mb-2">{{ msg.subject }}</h6>
+
+          <div class="p-3 rounded-3 mb-2"
+               style="background:#F5F7FA;font-size:0.9rem;
+                      border-left:3px solid #4A90E2;">
+            <div class="small text-muted fw-semibold mb-1">
+              <i class="bi bi-person me-1"></i>Customer:
+            </div>
+            {{ msg.body|truncatechars:250 }}
+          </div>
+
+          {% if msg.admin_reply %}
+          <div class="p-3 rounded-3"
+               style="background:#F0FFF4;font-size:0.9rem;
+                      border-left:3px solid #27AE60;">
+            <div class="small fw-semibold mb-1"
+                 style="color:#27AE60;">
+              <i class="bi bi-shield-check me-1"></i>
+              Your reply
+              {% if msg.replied_at %}
+              · {{ msg.replied_at|date:"d M Y" }}
+              {% endif %}
+            </div>
+            {{ msg.admin_reply|truncatechars:200 }}
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Action Button -->
+        <div class="col-md-2 text-end">
+          {% if msg.status == 'Open' %}
+          <a href="{% url 'admin_reply_message' msg.pk %}"
+             class="btn btn-primary btn-sm w-100 mb-2">
+            <i class="bi bi-reply me-1"></i>Reply
+          </a>
+          {% else %}
+          <a href="{% url 'admin_reply_message' msg.pk %}"
+             class="btn btn-sm w-100 mb-2"
+             style="background:#F5F7FA;
+                    border:1px solid #E2E8F0;
+                    color:#2D3748;">
+            <i class="bi bi-eye me-1"></i>View
+          </a>
+          {% endif %}
+        </div>
+
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+{% else %}
+  <div class="text-center py-5">
+    <div style="font-size:4rem;color:#E2E8F0;">
+      <i class="bi bi-envelope-check"></i>
+    </div>
+    <h4 class="text-muted mt-3">No messages yet</h4>
+    <p class="text-muted">
+      Customer messages will appear here.
+    </p>
+  </div>
+{% endif %}
+
+{% endblock %}

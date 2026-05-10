@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block title %}My Messages – GetBua{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="fw-bold mb-0">
+      <i class="bi bi-envelope-fill me-2"
+         style="color:#4A90E2;"></i>My Messages
+    </h2>
+    <p class="text-muted mb-0">
+      Conversations with GetBua admin
+    </p>
+  </div>
+  <a href="{% url 'message_compose' %}"
+     class="btn btn-primary px-4">
+    <i class="bi bi-pencil-square me-2"></i>New Message
+  </a>
+</div>
+
+{% if user_messages %}
+  {% for msg in user_messages %}
+
+  {% if not msg.is_read_by_user and msg.status == 'Replied' %}
+  <div class="card border-0 mb-3"
+       style="border-radius:14px;
+              border-left:4px solid #27AE60 !important;">
+  {% else %}
+  <div class="card border-0 mb-3"
+       style="border-radius:14px;">
+  {% endif %}
+
+    <div class="card-body p-4">
+
+      <!-- Subject + Badge -->
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <h5 class="fw-bold mb-0">{{ msg.subject }}</h5>
+        {% if msg.status == 'Open' %}
+          <span class="badge"
+                style="background:#FFF3CD;color:#856404;
+                       border:1px solid #FFC107;">
+            <i class="bi bi-clock me-1"></i>Pending
+          </span>
+        {% elif msg.status == 'Replied' %}
+          <span class="badge"
+                style="background:#D4EDDA;color:#155724;
+                       border:1px solid #28A745;">
+            <i class="bi bi-check-circle me-1"></i>Replied
+          </span>
+          {% if not msg.is_read_by_user %}
+          <span class="badge"
+                style="background:#4A90E2;color:white;">
+            New Reply!
+          </span>
+          {% endif %}
+        {% elif msg.status == 'Closed' %}
+          <span class="badge"
+                style="background:#E2E8F0;color:#718096;">
+            Closed
+          </span>
+        {% endif %}
+        <small class="text-muted ms-auto">
+          {{ msg.created_at|date:"d M Y H:i" }}
+        </small>
+      </div>
+
+      <!-- Your Message -->
+      <div class="p-3 rounded-3 mb-3"
+           style="background:#F5F7FA;
+                  border-left:3px solid #4A90E2;">
+        <div class="small text-muted fw-semibold mb-1">
+          <i class="bi bi-person me-1"></i>Your message
+        </div>
+        <p class="mb-0">{{ msg.body }}</p>
+      </div>
+
+      <!-- Admin Reply -->
+      {% if msg.admin_reply %}
+      <div class="p-3 rounded-3"
+           style="background:#F0FFF4;
+                  border-left:3px solid #27AE60;">
+        <div class="small fw-semibold mb-1"
+             style="color:#27AE60;">
+          <i class="bi bi-shield-check me-1"></i>
+          GetBua Admin replied ·
+          {{ msg.replied_at|date:"d M Y H:i" }}
+        </div>
+        <p class="mb-0">{{ msg.admin_reply }}</p>
+      </div>
+      {% else %}
+      <p class="text-muted small mb-0">
+        <i class="bi bi-hourglass-split me-1"></i>
+        Admin has not replied yet. Usually within 24 hours.
+      </p>
+      {% endif %}
+
+    </div>
+  </div>
+  {% endfor %}
+
+{% else %}
+  <div class="text-center py-5">
+    <div style="font-size:4rem;color:#E2E8F0;">
+      <i class="bi bi-envelope"></i>
+    </div>
+    <h4 class="text-muted mt-3">No messages yet</h4>
+    <p class="text-muted">
+      Have a question? Send a message to our admin team.
+    </p>
+    <a href="{% url 'message_compose' %}"
+       class="btn btn-primary px-4">
+      <i class="bi bi-pencil-square me-2"></i>Send First Message
+    </a>
+  </div>
+{% endif %}
+
+{% endblock %}
