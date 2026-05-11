@@ -196,52 +196,48 @@
 
 <!-- Pagination -->
 {% if page_obj.has_other_pages %}
-<div class="d-flex justify-content-center mt-4">
-  <nav>
-    <ul class="pagination">
-      {% if page_obj.has_previous %}
-      <li class="page-item">
-        <a class="page-link"
-           href="?page={{ page_obj.previous_page_number }}&q={{ q }}&location={{ location }}&skill={{ skill }}">
-          <i class="bi bi-chevron-left"></i>
-        </a>
-      </li>
-      {% endif %}
-      {% for num in page_obj.paginator.page_range %}
-        {% if page_obj.number == num %}
-          <li class="page-item active">
-            <span class="page-link">{{ num }}</span>
-          </li>
-        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-          <li class="page-item">
-            <a class="page-link"
-               href="?page={{ num }}&q={{ q }}&location={{ location }}&skill={{ skill }}">
-              {{ num }}
-            </a>
-          </li>
-        {% endif %}
-      {% endfor %}
-      {% if page_obj.has_next %}
-      <li class="page-item">
-        <a class="page-link"
-           href="?page={{ page_obj.next_page_number }}&q={{ q }}&location={{ location }}&skill={{ skill }}">
-          <i class="bi bi-chevron-right"></i>
-        </a>
-      </li>
-      {% endif %}
-    </ul>
-  </nav>
-</div>
-{% endif %}
+<div class="d-flex justify-content-center align-items-center mt-4 mb-3 gap-2 flex-wrap">
 
-{% else %}
-<div class="text-center py-5">
-  <div style="font-size:4rem;color:var(--border);">⚡</div>
-  <h4 class="text-muted mt-3">No short-term workers found</h4>
-  <p class="text-muted">Try adjusting your filters.</p>
-  <a href="{% url 'short_term_list' %}"
-     class="btn btn-outline-primary">Clear Filters</a>
+  {% if page_obj.has_previous %}
+  <a class="btn btn-outline-primary btn-sm"
+     href="?page={{ page_obj.previous_page_number }}&q={{ q }}&location={{ location }}&area={{ area }}&skill={{ skill }}">
+    <i class="bi bi-chevron-left"></i> Prev
+  </a>
+  {% else %}
+  <button class="btn btn-outline-primary btn-sm" disabled>
+    <i class="bi bi-chevron-left"></i> Prev
+  </button>
+  {% endif %}
+
+  {% for num in page_obj.paginator.page_range %}
+  {% if page_obj.number == num %}
+  <button class="btn btn-primary btn-sm px-3"
+          style="min-width:36px;">{{ num }}</button>
+  {% else %}
+  <a class="btn btn-outline-primary btn-sm px-3"
+     style="min-width:36px;"
+     href="?page={{ num }}&q={{ q }}&location={{ location }}&area={{ area }}&skill={{ skill }}">
+    {{ num }}
+  </a>
+  {% endif %}
+  {% endfor %}
+
+  {% if page_obj.has_next %}
+  <a class="btn btn-outline-primary btn-sm"
+     href="?page={{ page_obj.next_page_number }}&q={{ q }}&location={{ location }}&area={{ area }}&skill={{ skill }}">
+    Next <i class="bi bi-chevron-right"></i>
+  </a>
+  {% else %}
+  <button class="btn btn-outline-primary btn-sm" disabled>
+    Next <i class="bi bi-chevron-right"></i>
+  </button>
+  {% endif %}
+
 </div>
+<p class="text-center text-muted small mb-4">
+  Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+  — {{ total_count }} workers total
+</p>
 {% endif %}
 
 {% endblock %}

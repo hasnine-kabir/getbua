@@ -1,0 +1,375 @@
+{% extends "admin/base.html" %}
+{% block extrastyle %}
+{{ block.super }}
+<style>
+  /* ── Core Layout ─────────────────────────────────────────── */
+  body, #header, #footer, #container {
+    font-family: 'Segoe UI', Arial, sans-serif !important;
+  }
+
+  /* ── Header ──────────────────────────────────────────────── */
+  #header {
+    background: linear-gradient(135deg, #2C5AA0, #4A90E2) !important;
+    color: white !important;
+    padding: 12px 20px !important;
+    box-shadow: 0 2px 12px rgba(44,90,160,0.4) !important;
+  }
+  #branding h1, #branding h1 a:link, #branding h1 a:visited {
+    color: white !important;
+    font-size: 1.4rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.5px !important;
+  }
+  #user-tools, #user-tools a {
+    color: rgba(255,255,255,0.9) !important;
+  }
+  #user-tools a:hover { color: white !important; }
+
+  /* ── Navigation ──────────────────────────────────────────── */
+  div.module h2, div.module caption,
+  .module > h2 {
+    background: #2C5AA0 !important;
+    color: white !important;
+    padding: 10px 14px !important;
+    border-radius: 8px 8px 0 0 !important;
+    font-size: 0.9rem !important;
+    letter-spacing: 0.5px !important;
+  }
+  #nav-sidebar {
+    background: #1a2f5e !important;
+    min-width: 240px !important;
+  }
+  #nav-sidebar .current-app .section:link,
+  #nav-sidebar .current-app .section:visited {
+    color: #90CDF4 !important;
+    font-weight: 700 !important;
+  }
+  #nav-sidebar a:link, #nav-sidebar a:visited {
+    color: rgba(255,255,255,0.8) !important;
+    padding: 6px 16px !important;
+    display: block !important;
+    border-radius: 6px !important;
+    margin: 2px 8px !important;
+    transition: all 0.15s !important;
+  }
+  #nav-sidebar a:hover {
+    background: rgba(255,255,255,0.12) !important;
+    color: white !important;
+  }
+  #nav-sidebar .selected a {
+    background: rgba(74,144,226,0.3) !important;
+    color: white !important;
+  }
+  .toggle-nav-sidebar {
+    background: #2C5AA0 !important;
+    color: white !important;
+  }
+
+  /* ── Main Content ─────────────────────────────────────────── */
+  #content {
+    background: #F5F7FA !important;
+    padding: 20px !important;
+  }
+  #content-main {
+    background: #F5F7FA !important;
+  }
+  h1#site-name { color: white !important; }
+  h1 { color: #2C5AA0 !important; font-size: 1.6rem !important; }
+  h2 { color: #2C5AA0 !important; }
+
+  /* ── Module / Card ────────────────────────────────────────── */
+  .module {
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 8px rgba(74,144,226,0.1) !important;
+    margin-bottom: 20px !important;
+    border: 1px solid #E2E8F0 !important;
+    background: white !important;
+  }
+  table {
+    background: white !important;
+    border-radius: 0 0 10px 10px !important;
+  }
+  thead th {
+    background: #F0F4FF !important;
+    color: #2C5AA0 !important;
+    font-weight: 700 !important;
+    font-size: 0.82rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.4px !important;
+    padding: 10px 12px !important;
+    border-bottom: 2px solid #E2E8F0 !important;
+  }
+  tbody tr:hover {
+    background: #EFF6FF !important;
+  }
+  tbody td {
+    padding: 10px 12px !important;
+    border-bottom: 1px solid #F0F4FF !important;
+    color: #2D3748 !important;
+  }
+
+  /* ── Buttons ──────────────────────────────────────────────── */
+  .button, input[type=submit], input[type=button],
+  .submit-row input, a.button {
+    background: #4A90E2 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 8px 18px !important;
+    font-weight: 600 !important;
+    transition: background 0.2s !important;
+    cursor: pointer !important;
+  }
+  .button:hover, input[type=submit]:hover {
+    background: #2C5AA0 !important;
+  }
+  .button.default, input[type=submit].default {
+    background: #27AE60 !important;
+  }
+  .button.default:hover { background: #1e8449 !important; }
+  .deletelink, a.deletelink {
+    background: #E74C3C !important;
+    color: white !important;
+    border-radius: 6px !important;
+    padding: 4px 10px !important;
+  }
+  .addlink {
+    color: #27AE60 !important;
+    font-weight: 600 !important;
+  }
+
+  /* ── Submit Row ───────────────────────────────────────────── */
+  .submit-row {
+    background: #F0F4FF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 0 0 12px 12px !important;
+    padding: 12px 16px !important;
+  }
+
+  /* ── Fieldsets ────────────────────────────────────────────── */
+  fieldset {
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 10px !important;
+    margin-bottom: 16px !important;
+    padding: 16px !important;
+    background: white !important;
+  }
+  fieldset h2, fieldset.module h2 {
+    background: #F0F4FF !important;
+    color: #2C5AA0 !important;
+    padding: 8px 12px !important;
+    border-radius: 6px !important;
+    font-size: 0.85rem !important;
+    margin: -16px -16px 16px -16px !important;
+  }
+
+  /* ── Form Inputs ──────────────────────────────────────────── */
+  input[type=text], input[type=email], input[type=password],
+  input[type=number], input[type=url], textarea, select {
+    border: 1.5px solid #E2E8F0 !important;
+    border-radius: 8px !important;
+    padding: 7px 10px !important;
+    font-size: 0.9rem !important;
+    transition: border 0.2s !important;
+    background: #F8FAFF !important;
+  }
+  input[type=text]:focus, textarea:focus, select:focus {
+    border-color: #4A90E2 !important;
+    outline: none !important;
+    background: white !important;
+  }
+
+  /* ── Dashboard App Index ──────────────────────────────────── */
+  .app-core .section {
+    background: white !important;
+    border-radius: 10px !important;
+    padding: 12px 16px !important;
+    margin: 4px 0 !important;
+    border-left: 3px solid #4A90E2 !important;
+  }
+
+  /* ── Breadcrumbs ──────────────────────────────────────────── */
+  div.breadcrumbs {
+    background: #EFF6FF !important;
+    color: #2C5AA0 !important;
+    padding: 8px 20px !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+    font-size: 0.88rem !important;
+  }
+  div.breadcrumbs a { color: #4A90E2 !important; }
+
+  /* ── Pagination ───────────────────────────────────────────── */
+  .paginator {
+    background: #F0F4FF !important;
+    border-top: 1px solid #E2E8F0 !important;
+    padding: 10px 16px !important;
+    border-radius: 0 0 10px 10px !important;
+  }
+  .paginator a {
+    background: #4A90E2 !important;
+    color: white !important;
+    border-radius: 6px !important;
+    padding: 4px 10px !important;
+    margin: 0 3px !important;
+    text-decoration: none !important;
+  }
+  .paginator .this-page {
+    background: #2C5AA0 !important;
+    color: white !important;
+    border-radius: 6px !important;
+    padding: 4px 10px !important;
+  }
+
+  /* ── Messages / Alerts ────────────────────────────────────── */
+  ul.messagelist li {
+    border-radius: 8px !important;
+    padding: 10px 16px !important;
+    margin-bottom: 8px !important;
+  }
+  ul.messagelist li.success {
+    background: #D4EDDA !important;
+    color: #155724 !important;
+    border: none !important;
+  }
+  ul.messagelist li.warning {
+    background: #FFF3CD !important;
+    color: #856404 !important;
+    border: none !important;
+  }
+  ul.messagelist li.error {
+    background: #F8D7DA !important;
+    color: #721C24 !important;
+    border: none !important;
+  }
+
+  /* ── List filters (sidebar) ───────────────────────────────── */
+  #changelist-filter {
+    background: white !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 12px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+  #changelist-filter h2 {
+    background: #2C5AA0 !important;
+    color: white !important;
+    padding: 10px 14px !important;
+    margin: 0 !important;
+    font-size: 0.85rem !important;
+  }
+  #changelist-filter h3 {
+    color: #2C5AA0 !important;
+    padding: 8px 14px 4px !important;
+    font-size: 0.8rem !important;
+    text-transform: uppercase !important;
+  }
+  #changelist-filter ul li a {
+    color: #2D3748 !important;
+    padding: 3px 14px !important;
+    display: block !important;
+  }
+  #changelist-filter ul li a:hover {
+    color: #4A90E2 !important;
+  }
+  #changelist-filter ul li.selected a {
+    color: #2C5AA0 !important;
+    font-weight: 700 !important;
+  }
+
+  /* ── Search bar ───────────────────────────────────────────── */
+  #toolbar {
+    background: #F0F4FF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 10px !important;
+    padding: 10px 14px !important;
+    margin-bottom: 14px !important;
+  }
+  #searchbar {
+    border: 1.5px solid #E2E8F0 !important;
+    border-radius: 8px !important;
+    padding: 7px 12px !important;
+    width: 280px !important;
+  }
+  #toolbar input[type=submit] {
+    padding: 7px 14px !important;
+  }
+
+  /* ── Object actions ───────────────────────────────────────── */
+  .object-tools a {
+    background: #27AE60 !important;
+    border-radius: 8px !important;
+    padding: 7px 14px !important;
+    color: white !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+  }
+  .object-tools a:hover { background: #1e8449 !important; }
+  .object-tools a.viewsitelink {
+    background: #4A90E2 !important;
+  }
+
+  /* ── Action bar ───────────────────────────────────────────── */
+  .actions {
+    background: #F8FAFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+    margin-bottom: 8px !important;
+  }
+  select[name=action] {
+    border-radius: 6px !important;
+    padding: 5px 8px !important;
+  }
+
+  /* ── Related popup ────────────────────────────────────────── */
+  .related-widget-wrapper-link {
+    color: #4A90E2 !important;
+  }
+
+  /* ── Dashboard index cards ────────────────────────────────── */
+  #content-main .module table {
+    border-radius: 0 !important;
+  }
+  #content-main .module table td,
+  #content-main .module table th {
+    border-bottom: 1px solid #F0F4FF !important;
+  }
+  #content-main .module table tr:last-child td {
+    border-bottom: none !important;
+  }
+  caption {
+    background: #2C5AA0 !important;
+    color: white !important;
+    padding: 10px 14px !important;
+    text-align: left !important;
+    font-weight: 700 !important;
+  }
+
+  /* ── Help text ────────────────────────────────────────────── */
+  .help, p.help {
+    color: #718096 !important;
+    font-size: 0.82rem !important;
+  }
+
+  /* ── Required star ────────────────────────────────────────── */
+  .required label:after {
+    color: #E74C3C !important;
+  }
+
+  /* ── Inline admin ─────────────────────────────────────────── */
+  .inline-group {
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    margin-bottom: 16px !important;
+  }
+  .inline-related h3 {
+    background: #F0F4FF !important;
+    color: #2C5AA0 !important;
+    padding: 8px 12px !important;
+    margin: 0 !important;
+    font-size: 0.85rem !important;
+  }
+</style>
+{% endblock %}
