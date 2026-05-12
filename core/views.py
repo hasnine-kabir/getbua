@@ -30,15 +30,17 @@ def register_view(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            messages.success(request,
-                f"Welcome to GetBua, {user.first_name}! 🎉")
+            messages.success(
+                request,
+                f"Welcome to GetBua, {user.first_name}! 🎉"
+            )
             return redirect('home')
         else:
             messages.error(request, "Please fix the errors below.")
     else:
         form = RegisterForm()
-    return render(request, 'registration/register.html',
-                  {'form': form})
+    return render(request,
+                  'registration/register.html', {'form': form})
 
 
 # ─── LOGIN ────────────────────────────────────────────────────────────────────
@@ -55,17 +57,19 @@ def login_view(request):
             )
             if user:
                 login(request, user)
-                messages.success(request,
+                messages.success(
+                    request,
                     f"Welcome back, "
-                    f"{user.first_name or user.username}! 👋")
+                    f"{user.first_name or user.username}! 👋"
+                )
                 return redirect(request.GET.get('next', 'home'))
             else:
                 messages.error(request,
                                "Invalid username or password.")
     else:
         form = LoginForm()
-    return render(request, 'registration/login.html',
-                  {'form': form})
+    return render(request,
+                  'registration/login.html', {'form': form})
 
 
 # ─── LOGOUT ───────────────────────────────────────────────────────────────────
@@ -79,12 +83,14 @@ def logout_view(request):
 def custom_password_reset(request):
     if request.user.is_authenticated:
         return redirect('home')
+
     if request.method == 'POST':
         form = PasswordResetForm(request.POST)
         if form.is_valid():
             email    = form.cleaned_data['email']
             birthday = form.cleaned_data['birthday']
             new_pass = form.cleaned_data['new_password1']
+
             try:
                 from django.contrib.auth.models import User as AuthUser
                 user = AuthUser.objects.get(email=email)
@@ -94,33 +100,40 @@ def custom_password_reset(request):
                 return render(request,
                     'registration/password_reset_custom.html',
                     {'form': form})
+
             try:
                 profile = user.profile
                 if not profile.birthday:
                     messages.error(request,
-                        "This account has no birthday on record.")
+                        "This account has no birthday on record. "
+                        "Please contact admin.")
                     return render(request,
                         'registration/password_reset_custom.html',
                         {'form': form})
                 if profile.birthday != birthday:
                     messages.error(request,
-                        "Email and birthday do not match.")
+                        "Email and birthday do not match. "
+                        "Please try again.")
                     return render(request,
                         'registration/password_reset_custom.html',
                         {'form': form})
             except Exception:
                 messages.error(request,
-                    "Could not verify your identity.")
+                    "Could not verify your identity. "
+                    "Please contact admin.")
                 return render(request,
                     'registration/password_reset_custom.html',
                     {'form': form})
+
             user.set_password(new_pass)
             user.save()
             messages.success(request,
-                "✅ Password reset successfully!")
+                "✅ Password reset successfully! "
+                "Login with your new password.")
             return redirect('login')
     else:
         form = PasswordResetForm()
+
     return render(request,
                   'registration/password_reset_custom.html',
                   {'form': form})
@@ -175,11 +188,7 @@ def training_page(request):
 
 # ─── WORKER LIST ──────────────────────────────────────────────────────────────
 def worker_list(request):
-    try:
-        workers = Worker.objects.filter(is_verified=True)
-    except Exception:
-        workers = Worker.objects.none()
-
+    workers  = Worker.objects.filter(is_verified=True)
     q        = request.GET.get('q',            '').strip()
     location = request.GET.get('location',     '').strip()
     area     = request.GET.get('area',         '').strip()
@@ -215,7 +224,14 @@ def worker_list(request):
         workers = workers.filter(availability=avail)
 
     paginator   = Paginator(workers, 9)
-    page_obj    = paginator.get_page(request.GET.get('page', 1))
+    page_obj    = paginator.get_page(request.GET.get('page'))
+
+    # Build flat area list for selected city
+    all_areas = []
+    for group_name, group_choices in Worker.AREA_CHOICES:
+        for val, label in group_choices:
+            city = group_name.replace(' Areas', '')
+            all_areas.append((val, label, city))
 
     return render(request, 'workers/list.html', {
         'workers':          page_obj,
@@ -223,6 +239,7 @@ def worker_list(request):
         'total_count':      paginator.count,
         'location_choices': Worker.LOCATION_CHOICES,
         'area_choices':     Worker.AREA_CHOICES,
+        'all_areas':        all_areas,
         'skill_choices':    Worker.SKILL_CHOICES,
         'avail_choices':    Worker.AVAILABILITY_CHOICES,
         'q':                q,
@@ -237,14 +254,10 @@ def worker_list(request):
 
 # ─── SHORT TERM LIST ──────────────────────────────────────────────────────────
 def short_term_list(request):
-    try:
-        workers = Worker.objects.filter(
-            is_verified=True,
-            accepts_short_term=True,
-            availability='Available')
-    except Exception:
-        workers = Worker.objects.none()
-
+    workers  = Worker.objects.filter(
+                   is_verified=True,
+                   accepts_short_term=True,
+                   availability='Available')
     q        = request.GET.get('q',        '').strip()
     location = request.GET.get('location', '').strip()
     area     = request.GET.get('area',     '').strip()
@@ -265,7 +278,7 @@ def short_term_list(request):
         workers = workers.filter(skills=skill)
 
     paginator = Paginator(workers, 9)
-    page_obj  = paginator.get_page(request.GET.get('page', 1))
+    page_obj  = paginator.get_page(request.GET.get('page'))
 
     return render(request, 'workers/short_term_list.html', {
         'workers':          page_obj,
@@ -285,11 +298,13 @@ def short_term_list(request):
 def worker_detail(request, pk):
     worker  = get_object_or_404(Worker, pk=pk, is_verified=True)
     reviews = worker.reviews.select_related('user').all()
+
     existing_request = None
     if request.user.is_authenticated:
         existing_request = HiringRequest.objects.filter(
             user=request.user, worker=worker
         ).first()
+
     return render(request, 'workers/detail.html', {
         'worker':           worker,
         'reviews':          reviews,
@@ -301,15 +316,18 @@ def worker_detail(request, pk):
 @login_required
 def hire_worker(request, worker_id):
     worker = get_object_or_404(Worker, pk=worker_id, is_verified=True)
+
     if HiringRequest.objects.filter(
             user=request.user, worker=worker).exists():
         messages.warning(request,
             f"You already have a request for {worker.name}.")
         return redirect('worker_detail', pk=worker_id)
+
     if worker.availability != 'Available':
         messages.error(request,
             f"{worker.name} is currently not available.")
         return redirect('worker_detail', pk=worker_id)
+
     if request.method == 'POST':
         hire_type        = request.POST.get('hire_type', 'Full Time')
         message          = request.POST.get('message', '')
@@ -317,14 +335,19 @@ def hire_worker(request, worker_id):
         duration_days    = request.POST.get('duration_days', '').strip()
         start_date       = request.POST.get('start_date', '').strip()
         delivery_address = request.POST.get('delivery_address', '').strip()
+
         if not delivery_address:
             messages.error(request,
                 "Please provide a delivery address.")
-            return render(request, 'hiring/hire_confirm.html',
+            return render(request,
+                          'hiring/hire_confirm.html',
                           {'worker': worker})
+
         hire = HiringRequest(
-            user=request.user, worker=worker,
-            hire_type=hire_type, message=message,
+            user=request.user,
+            worker=worker,
+            hire_type=hire_type,
+            message=message,
             delivery_address=delivery_address
         )
         if proposed_salary:
@@ -342,10 +365,13 @@ def hire_worker(request, worker_id):
                 hire.start_date = start_date
             except Exception:
                 pass
+
         hire.save()
         messages.success(request,
-            f"✅ Hiring request for {worker.name} submitted!")
+            f"✅ Hiring request for {worker.name} submitted! "
+            "Admin will review shortly.")
         return redirect('my_hires')
+
     return render(request, 'hiring/hire_confirm.html',
                   {'worker': worker})
 
@@ -381,12 +407,14 @@ def submit_rating(request, hire_id):
     if hasattr(hire, 'review'):
         messages.warning(request, "You already reviewed this worker.")
         return redirect('my_hires')
+
     if request.method == 'POST':
         score   = request.POST.get('score')
         comment = request.POST.get('comment', '')
         if not score or int(score) not in range(1, 6):
             messages.error(request, "Please select a rating.")
-            return render(request, 'hiring/rate.html', {'hire': hire})
+            return render(request, 'hiring/rate.html',
+                          {'hire': hire})
         Review.objects.create(
             user=request.user, worker=hire.worker,
             hire=hire, score=int(score), comment=comment
@@ -395,6 +423,7 @@ def submit_rating(request, hire_id):
         messages.success(request,
             f"⭐ Review for {hire.worker.name} saved!")
         return redirect('my_hires')
+
     return render(request, 'hiring/rate.html', {'hire': hire})
 
 
@@ -407,6 +436,7 @@ def request_replacement(request, hire_id):
         messages.warning(request,
             "You already have a pending replacement.")
         return redirect('my_hires')
+
     if request.method == 'POST':
         reason = request.POST.get('reason', '').strip()
         if not reason:
@@ -414,9 +444,14 @@ def request_replacement(request, hire_id):
             return render(request, 'hiring/replace.html',
                           {'hire': hire})
         ReplacementRequest.objects.create(
-            user=request.user, hiring_request=hire, reason=reason)
-        messages.success(request, "🔄 Replacement request submitted!")
+            user=request.user,
+            hiring_request=hire,
+            reason=reason
+        )
+        messages.success(request,
+            "🔄 Replacement request submitted!")
         return redirect('my_hires')
+
     return render(request, 'hiring/replace.html', {'hire': hire})
 
 
@@ -426,16 +461,20 @@ def admin_dashboard(request):
     if not request.user.is_staff:
         messages.error(request, "Access denied.")
         return redirect('home')
+
     pending_hires  = HiringRequest.objects.filter(
-                         status='Pending').select_related('user', 'worker')
+                         status='Pending').select_related(
+                         'user', 'worker')
     approved_hires = HiringRequest.objects.filter(
-                         status='Approved').select_related('user', 'worker')
+                         status='Approved').select_related(
+                         'user', 'worker')
     all_hires      = HiringRequest.objects.all().select_related(
                          'user', 'worker')
     all_workers    = Worker.objects.all()
     replacements   = ReplacementRequest.objects.filter(
                          status='Pending').select_related(
                          'user', 'hiring_request__worker')
+
     return render(request, 'dashboard/admin_dashboard.html', {
         'pending_hires':  pending_hires,
         'approved_hires': approved_hires,
@@ -453,19 +492,20 @@ def admin_dashboard(request):
     })
 
 
-# ─── APPROVE HIRE ─────────────────────────────────────────────────────────────
+# ─── APPROVE HIRE (FIXED for short-term) ──────────────────────────────────────
 @login_required
 def approve_hire(request, hire_id):
     if not request.user.is_staff:
         return redirect('home')
+    import datetime as dt
     hire        = get_object_or_404(HiringRequest, pk=hire_id)
     hire.status = 'Approved'
     hire.save()
     hire.worker.availability = 'Hired'
     hire.worker.save(update_fields=['availability'])
+
     if not hasattr(hire, 'contract'):
         if hire.hire_type == 'Short Term':
-            import datetime as dt
             daily  = hire.worker.daily_rate or 0
             days   = hire.duration_days or 1
             total  = daily * days
@@ -474,7 +514,7 @@ def approve_hire(request, hire_id):
                 end_dt = hire.start_date + dt.timedelta(days=days)
             Contract.objects.create(
                 hiring_request    = hire,
-                start_date        = hire.start_date or datetime.date.today(),
+                start_date        = hire.start_date or dt.date.today(),
                 end_date          = end_dt,
                 salary_agreed     = 0,
                 daily_rate_agreed = daily,
@@ -485,12 +525,90 @@ def approve_hire(request, hire_id):
             agreed = hire.proposed_salary or hire.worker.salary
             Contract.objects.create(
                 hiring_request = hire,
-                start_date     = datetime.date.today(),
+                start_date     = dt.date.today(),
                 salary_agreed  = agreed,
             )
+
     messages.success(request,
         f"✅ Hire approved for {hire.worker.name}.")
     return redirect('admin_dashboard')
+
+
+# ─── MESSAGES — USER INBOX ────────────────────────────────────────────────────
+@login_required
+def message_inbox(request):
+    user_messages = Message.objects.filter(
+                        user=request.user).order_by('-created_at')
+    # Mark as read
+    user_messages.filter(
+        is_read_by_user=False).update(is_read_by_user=True)
+    return render(request, 'messaging/inbox.html',
+                  {'user_messages': user_messages})
+
+
+# ─── MESSAGES — COMPOSE ───────────────────────────────────────────────────────
+@login_required
+def message_compose(request):
+    if request.method == 'POST':
+        subject = request.POST.get('subject', '').strip()
+        body    = request.POST.get('body', '').strip()
+        if not subject or not body:
+            messages.error(request,
+                           "Subject and message are required.")
+            return render(request, 'messaging/compose.html')
+        Message.objects.create(
+            user=request.user,
+            subject=subject,
+            body=body
+        )
+        messages.success(request,
+            "✅ Message sent! Admin will reply shortly.")
+        return redirect('message_inbox')
+    return render(request, 'messaging/compose.html')
+
+
+# ─── MESSAGES — ADMIN VIEW ────────────────────────────────────────────────────
+@login_required
+def admin_messages(request):
+    if not request.user.is_staff:
+        messages.error(request, "Access denied.")
+        return redirect('home')
+    all_msgs = Message.objects.all().select_related(
+                   'user').order_by('-created_at')
+    open_count = all_msgs.filter(status='Open').count()
+    # Mark as read by admin
+    all_msgs.filter(
+        is_read_by_admin=False).update(is_read_by_admin=True)
+    return render(request, 'messaging/admin_inbox.html', {
+        'all_msgs':   all_msgs,
+        'open_count': open_count,
+    })
+
+
+# ─── MESSAGES — ADMIN REPLY ───────────────────────────────────────────────────
+@login_required
+def admin_reply_message(request, msg_id):
+    if not request.user.is_staff:
+        return redirect('home')
+    from django.utils import timezone
+    msg = get_object_or_404(Message, pk=msg_id)
+    if request.method == 'POST':
+        reply = request.POST.get('reply', '').strip()
+        if not reply:
+            messages.error(request, "Reply cannot be empty.")
+            return render(request, 'messaging/admin_reply.html',
+                          {'msg': msg})
+        msg.admin_reply      = reply
+        msg.status           = 'Replied'
+        msg.replied_at       = timezone.now()
+        msg.is_read_by_user  = False
+        msg.is_read_by_admin = True
+        msg.save()
+        messages.success(request,
+            f"✅ Reply sent to {msg.user.username}.")
+        return redirect('admin_messages')
+    return render(request, 'messaging/admin_reply.html',
+                  {'msg': msg})
 
 
 # ─── REJECT HIRE ──────────────────────────────────────────────────────────────
@@ -564,77 +682,9 @@ def salary_history(request, hire_id):
     hire     = get_object_or_404(HiringRequest, pk=hire_id,
                                  user=request.user)
     payments = SalaryPayment.objects.filter(
-                   hiring_request=hire).order_by('-year', '-created_at')
+                   hiring_request=hire).order_by(
+                   '-year', '-created_at')
     total    = sum(p.amount for p in payments)
     return render(request, 'hiring/salary_history.html', {
         'hire': hire, 'payments': payments, 'total': total,
     })
-
-
-# ─── MESSAGES ─────────────────────────────────────────────────────────────────
-@login_required
-def message_inbox(request):
-    user_messages = Message.objects.filter(
-                        user=request.user).order_by('-created_at')
-    user_messages.filter(
-        is_read_by_user=False).update(is_read_by_user=True)
-    return render(request, 'messaging/inbox.html',
-                  {'user_messages': user_messages})
-
-
-@login_required
-def message_compose(request):
-    if request.method == 'POST':
-        subject = request.POST.get('subject', '').strip()
-        body    = request.POST.get('body', '').strip()
-        if not subject or not body:
-            messages.error(request,
-                           "Subject and message are required.")
-            return render(request, 'messaging/compose.html')
-        Message.objects.create(
-            user=request.user, subject=subject, body=body)
-        messages.success(request,
-            "✅ Message sent! Admin will reply shortly.")
-        return redirect('message_inbox')
-    return render(request, 'messaging/compose.html')
-
-
-@login_required
-def admin_messages(request):
-    if not request.user.is_staff:
-        messages.error(request, "Access denied.")
-        return redirect('home')
-    all_msgs   = Message.objects.all().select_related(
-                     'user').order_by('-created_at')
-    open_count = all_msgs.filter(status='Open').count()
-    all_msgs.filter(
-        is_read_by_admin=False).update(is_read_by_admin=True)
-    return render(request, 'messaging/admin_inbox.html', {
-        'all_msgs':   all_msgs,
-        'open_count': open_count,
-    })
-
-
-@login_required
-def admin_reply_message(request, msg_id):
-    if not request.user.is_staff:
-        return redirect('home')
-    from django.utils import timezone
-    msg = get_object_or_404(Message, pk=msg_id)
-    if request.method == 'POST':
-        reply = request.POST.get('reply', '').strip()
-        if not reply:
-            messages.error(request, "Reply cannot be empty.")
-            return render(request, 'messaging/admin_reply.html',
-                          {'msg': msg})
-        msg.admin_reply      = reply
-        msg.status           = 'Replied'
-        msg.replied_at       = timezone.now()
-        msg.is_read_by_user  = False
-        msg.is_read_by_admin = True
-        msg.save()
-        messages.success(request,
-            f"✅ Reply sent to {msg.user.username}.")
-        return redirect('admin_messages')
-    return render(request, 'messaging/admin_reply.html',
-                  {'msg': msg})
