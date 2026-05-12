@@ -265,54 +265,74 @@
 
 <!-- PAGINATION -->
 {% if page_obj.has_other_pages %}
-<div class="d-flex justify-content-center align-items-center mt-4 mb-3 gap-2 flex-wrap">
+<div class="d-flex justify-content-center mt-3 mb-4">
+  <nav>
+    <ul class="pagination">
+      {% if page_obj.has_previous %}
+      <li class="page-item">
+        <a class="page-link"
+           href="?page={{ page_obj.previous_page_number }}&q={{ q }}&location={{ location }}&area={{ area }}&skill={{ skill }}&min_salary={{ min_salary }}&max_salary={{ max_salary }}&availability={{ availability }}">
+          <i class="bi bi-chevron-left"></i>
+        </a>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <span class="page-link">
+          <i class="bi bi-chevron-left"></i>
+        </span>
+      </li>
+      {% endif %}
 
-  <!-- Previous -->
-  {% if page_obj.has_previous %}
-  <a class="btn btn-outline-primary btn-sm"
-     href="?page={{ page_obj.previous_page_number }}&q={{ q }}&location={{ location }}&area={{ area }}&skill={{ skill }}&min_salary={{ min_salary }}&max_salary={{ max_salary }}&availability={{ availability }}">
-    <i class="bi bi-chevron-left"></i> Prev
-  </a>
-  {% else %}
-  <button class="btn btn-outline-primary btn-sm" disabled>
-    <i class="bi bi-chevron-left"></i> Prev
-  </button>
-  {% endif %}
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <li class="page-item active">
+          <span class="page-link">{{ num }}</span>
+        </li>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <li class="page-item">
+          <a class="page-link"
+             href="?page={{ num }}&q={{ q }}&location={{ location }}&area={{ area }}&skill={{ skill }}&min_salary={{ min_salary }}&max_salary={{ max_salary }}&availability={{ availability }}">
+            {{ num }}
+          </a>
+        </li>
+        {% endif %}
+      {% endfor %}
 
-  <!-- Page Numbers — show ALL pages -->
-  {% for num in page_obj.paginator.page_range %}
-  {% if page_obj.number == num %}
-  <button class="btn btn-primary btn-sm px-3"
-          style="min-width:36px;">
-    {{ num }}
-  </button>
-  {% else %}
-  <a class="btn btn-outline-primary btn-sm px-3"
-     style="min-width:36px;"
-     href="?page={{ num }}&q={{ q }}&location={{ location }}&area={{ area }}&skill={{ skill }}&min_salary={{ min_salary }}&max_salary={{ max_salary }}&availability={{ availability }}">
-    {{ num }}
-  </a>
-  {% endif %}
-  {% endfor %}
-
-  <!-- Next -->
-  {% if page_obj.has_next %}
-  <a class="btn btn-outline-primary btn-sm"
-     href="?page={{ page_obj.next_page_number }}&q={{ q }}&location={{ location }}&area={{ area }}&skill={{ skill }}&min_salary={{ min_salary }}&max_salary={{ max_salary }}&availability={{ availability }}">
-    Next <i class="bi bi-chevron-right"></i>
-  </a>
-  {% else %}
-  <button class="btn btn-outline-primary btn-sm" disabled>
-    Next <i class="bi bi-chevron-right"></i>
-  </button>
-  {% endif %}
-
+      {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link"
+           href="?page={{ page_obj.next_page_number }}&q={{ q }}&location={{ location }}&area={{ area }}&skill={{ skill }}&min_salary={{ min_salary }}&max_salary={{ max_salary }}&availability={{ availability }}">
+          <i class="bi bi-chevron-right"></i>
+        </a>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <span class="page-link">
+          <i class="bi bi-chevron-right"></i>
+        </span>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
 </div>
-<p class="text-center text-muted small mb-4">
-  Showing page {{ page_obj.number }} of
-  {{ page_obj.paginator.num_pages }}
-  — {{ total_count }} workers total
+<p class="text-center text-muted small">
+  Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+  · {{ total_count }} workers total
 </p>
+{% endif %}
+
+{% else %}
+<div class="text-center py-5">
+  <div style="font-size:4rem;color:#E2E8F0;">
+    <i class="bi bi-search"></i>
+  </div>
+  <h4 class="text-muted mt-3">No workers found</h4>
+  <p class="text-muted">Try adjusting your search filters.</p>
+  <a href="{% url 'worker_list' %}"
+     class="btn btn-outline-primary">
+    <i class="bi bi-arrow-counterclockwise me-1"></i>Clear Filters
+  </a>
+</div>
 {% endif %}
 
 <!-- Dynamic area filter by city -->
